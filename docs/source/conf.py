@@ -70,7 +70,7 @@ html_theme = "sphinx_book_theme"
 html_static_path = ['_static']
 
 html_theme_options = {
-    "repository_url": "https://github.com/{your-docs-url}",
+    "repository_url": "https://github.com/alexOarga/haiku-geometric",
     "use_repository_button": True,
 }
 
