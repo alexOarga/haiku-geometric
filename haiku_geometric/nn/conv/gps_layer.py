@@ -8,6 +8,7 @@ import warnings
 from typing import Optional, Union, List, Callable, Dict, Any
 from .pna_conv import PNAConv
 from .gat_conv import GATConv
+from .gine_conv import GINEConv
 from haiku_geometric.nn import SelfAttention
 
 class GPSLayer(hk.Module):

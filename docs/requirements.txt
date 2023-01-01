@@ -5,3 +5,5 @@ ipykernel
 myst-parser
 haiku-geometric==0.0.1a0
 sphinx-autodoc-typehints
+sphinx_book_theme
+sphinxcontrib-katex

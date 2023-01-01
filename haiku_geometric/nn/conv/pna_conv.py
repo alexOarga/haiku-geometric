@@ -70,6 +70,7 @@ class PNAConv(hk.Module):
         self.post_layers = post_layers
 
         self.linear = hk.Linear(out_channels)
+        self.act = act
 
     def __call__(self,
                  nodes: jnp.ndarray = None,
@@ -95,14 +96,14 @@ class PNAConv(hk.Module):
         for _ in range(self.towers):
             modules = [hk.Linear(self.F_in)]
             for _ in range(self.pre_layers - 1):
-                modules += [act]
+                modules += [self.act]
                 modules += [hk.Linear(self.F_in)]
             self.pre_nns.append(hk.Sequential(modules))
 
             in_channels = (len(self.aggregators) * len(self.scalers) + 1) * self.F_in
             modules = [hk.Linear(self.F_out)]
             for _ in range(self.post_layers - 1):
-                modules += [act]
+                modules += [self.act]
                 modules += [hk.Linear(self.F_out)]
             self.post_nns.append(hk.Sequential(modules))
         
