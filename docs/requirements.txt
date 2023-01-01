@@ -12,3 +12,6 @@ sphinxcontrib-katex==0.8.6
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 Jinja2<3.1
+ipykernel==5.3.4
+ipython==7.16.1
+ipython-genutils==0.2.0
