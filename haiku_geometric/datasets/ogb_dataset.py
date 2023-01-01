@@ -1,7 +1,3 @@
-import ogb
-from ogb.graphproppred import GraphPropPredDataset
-from ogb.nodeproppred import NodePropPredDataset
-from ogb.linkproppred import LinkPropPredDataset
 from tqdm import tqdm
 import jraph
 import jax.numpy as jnp
@@ -41,6 +37,13 @@ class OGB(GraphDataset):
 
     # function from: https://github.com/tensorflow/gnn/blob/cf931728df08fb379e624f30fa13bca73b32c4c7/tensorflow_gnn/converters/ogb/convert_ogb_dataset.py
     def _create_dataset(self, dataset: str, datasets_root: Optional[str] = None) -> Any:
+
+        # Optional imports
+        import ogb
+        from ogb.graphproppred import GraphPropPredDataset
+        from ogb.nodeproppred import NodePropPredDataset
+        from ogb.linkproppred import LinkPropPredDataset
+
         problem_type = dataset.split("-")[0]
         kwargs = dict(name=dataset, root=datasets_root)
         if problem_type == "ogbn":

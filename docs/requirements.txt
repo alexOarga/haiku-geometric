@@ -3,3 +3,4 @@ sphinx>=1.4
 nbsphinx
 ipykernel
 myst-parser
+haiku-geometric==0.0.1a0

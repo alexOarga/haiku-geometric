@@ -1,7 +1,8 @@
-import torch
+
 from tqdm import tqdm
 import pickle
-import os
+import os, sys
+import os.path as osp
 import jax.numpy as jnp
 from haiku_geometric.datasets.base import DataGraphTuple, GraphDataset
 from haiku_geometric.datasets.utils import pickle_save_object, download_url, extract_zip
@@ -82,6 +83,10 @@ class GNNBenchmarkDataset(GraphDataset):
             
             
     def _process_and_save(self, root, name):
+
+        # Optional imports
+        import torch
+
         raw_file_names = self._raw_names(name)
         path = osp.join(root, raw_file_names[0])
         ys = torch.load(path)
@@ -97,6 +102,10 @@ class GNNBenchmarkDataset(GraphDataset):
             
     
     def _process_cls(self, root, name):
+
+        # Optional imports
+        import torch
+
         raw_paths = self._raw_names(name)
         path = download_url(self._urls[name], folder=root, filename=None)
         extract_zip(path, root)
@@ -128,7 +137,7 @@ class GNNBenchmarkDataset(GraphDataset):
     
             
     def __init__(self, name: str, root: str, split: str = "train"):
-        
+
         names = ['PATTERN', 'CLUSTER', 'MNIST', 'CIFAR10', 'TSP', 'CSL']
         if name not in names:
             raise ValueError(f"Database name '{name}' not available. Avilable databases are: "
