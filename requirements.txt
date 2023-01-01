@@ -1,0 +1,5 @@
+jax
+haiku
+jraph
+setuptools
+tqdm
