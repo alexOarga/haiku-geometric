@@ -120,3 +120,7 @@ def linkcode_resolve(domain, info):
     source, lineno = inspect.getsourcelines(obj)
   except OSError:
     return None
+    
+  return 'https://github.com/alexOarga/haiku-geometric/blob/main/haiku_geometric/%s#L%d#L%d' % (
+      os.path.relpath(filename, start=os.path.dirname(
+          hk.__file__)), lineno, lineno + len(source) - 1)
