@@ -19,7 +19,7 @@ import os
 import sys
 import typing
 
-sys.path.insert(0, os.path.abspath("../.."))
+#sys.path.insert(0, os.path.abspath('../..'))
 import haiku_geometric
 
 # -- Project information -----------------------------------------------------
@@ -121,6 +121,7 @@ def linkcode_resolve(domain, info):
   except OSError:
     return None
     
-  return 'https://github.com/alexOarga/haiku-geometric/blob/main/haiku_geometric/%s#L%d#L%d' % (
-      os.path.relpath(filename, start=os.path.dirname(
-          hk.__file__)), lineno, lineno + len(source) - 1)
+  o = os.path.relpath(filename, start=os.path.dirname(hk.__file__))
+  s = 'https://github.com/alexOarga/haiku-geometric/blob/main/haiku_geometric/%s#L%d#L%d' % (
+      o, lineno, lineno + len(source) - 1)
+  return s

@@ -81,6 +81,7 @@ class Planetoid(GraphDataset):
         train_index = jnp.arange(y.shape[0], dtype=jnp.int32)
         val_index = jnp.arange(y.shape[0], y.shape[0] + 500, dtype=jnp.int32)
         test_index = jnp.array(test_index)
+        sorted_test_index = jnp.sort(test_index)
 
         x = jnp.array(x.toarray())
         tx = jnp.array(tx.toarray())
@@ -89,9 +90,13 @@ class Planetoid(GraphDataset):
         nx = jnp.concatenate([allx, tx], axis=0)
         ny = jnp.concatenate([ally, ty], axis=0).argmax(axis=1)
 
+        nx = nx.at[test_index].set(nx[sorted_test_index])
+        ny = ny.at[test_index].set(ny[sorted_test_index])
+
         def sample_mask(index, num_nodes):
             mask = jnp.zeros((num_nodes, ), dtype=jnp.uint8)
-            mask.at[index].set(1)
+            mask = mask.at[index].set(1)
+            mask = mask.astype(jnp.bool_)
             return mask
 
         train_mask = sample_mask(train_index, num_nodes=ny.shape[0])

@@ -1,0 +1,23 @@
+#################
+Example Notebooks
+#################
+
+Besides the quickstart notebooks available in this documentation,
+the following example notebooks are also available:
+
+.. list-table::
+   :widths: 75 25
+   :header-rows: 0
+
+   * - Graph Convolution Networks with Karate Club dataset
+     - |stuff|
+   * - Graph Attention Networks with CORA dataset
+     - |stuff2|
+
+.. |stuff| raw:: html
+
+    <a target="_blank" href="https://colab.research.google.com/github/alexOarga/haiku-geometric/examples/GCNConv_karate_club.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+.. |stuff2| raw:: html
+
+    <a target="_blank" href="https://colab.research.google.com/github/alexOarga/haiku-geometric/examples/GATConv_CORA.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>

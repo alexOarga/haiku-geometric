@@ -12,7 +12,11 @@ Welcome to haiku-geometric's documentation!
   
 Installation
 ------------
-Haiku Geomtric can be installed with::
+Haiku Geomtric can be installed via Pypi::
+
+    pip install haiku-geometric
+
+Alternatively you can install it from source::
 
    pip install git+https://github.com/alexOarga/haiku-geometric
 
@@ -22,6 +26,8 @@ Haiku Geomtric can be installed with::
    :maxdepth: 1
 
    notebooks/quickstart
+   notebooks/creating_dataset
+   examples
 
 .. toctree::
    :glob:

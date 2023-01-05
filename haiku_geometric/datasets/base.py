@@ -36,7 +36,7 @@ class DataGraphTuple(NamedTuple):
 
 
 class GraphDataset():
-    r""" Container class containig a list of graphs.
+    r""" Container class containing a list of graphs.
 
     Attributes:
     - data: List of DataGraphTuple.

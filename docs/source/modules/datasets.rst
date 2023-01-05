@@ -10,6 +10,4 @@ haiku_geometric.datasets
 
 .. automodule:: haiku_geometric.datasets
    :members:
-   :undoc-members:
-   :special-members:
-   :exclude-members: __abstractmethods__, __module__, __repr__
+   :show-inheritance:

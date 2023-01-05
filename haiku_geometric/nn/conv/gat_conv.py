@@ -1,3 +1,5 @@
+# Adapted from Gordić's Annotated Graph Attention Networks:
+# https://github.com/gordicaleksa/pytorch-GAT/blob/main/The%20Annotated%20GAT%20(Cora).ipynb
 import haiku as hk
 import jax
 import jax.numpy as jnp
@@ -45,8 +47,15 @@ class GATConv(hk.Module):
             (default: :obj:`0.2`)
         add_self_loops (bool, optional): If :obj:`True`, will add
             a self-loop for each node of the graph. (default: :obj:`True`)
+        dropout (float, optional): Dropout applied to attention weights.
+            This dropout simulates random sampling of the neigbours.
+            (default: :obj:`0.0`)
+        dropout_nodes (float, optional): Dropout applied initially to the input features.
+            (default: :obj:`0.0`)
         bias (bool, optional): If :obj:`True`, the layer will add
             an additive bias to the output. (default: :obj:`True`)
+        init (hk.initializers.Initializer): Weights initializer
+            (default: :obj:`hk.initializers.VarianceScaling(1.0, "fan_avg", "truncated_normal")`)
     """
 
     def __init__(
@@ -55,55 +64,69 @@ class GATConv(hk.Module):
             heads: int = 1,
             concat: bool = True,
             negative_slope: float = 0.2,
-            # dropout: float = 0.0,
+            dropout: float = 0.0,
+            dropout_nodes: float = 0.0,
             add_self_loops: bool = True,
             # edge_dim: Optional[int] = None, # TODO: include edges in GATConv
             # fill_value: Union[float, Tensor, str] = 'mean',
-            bias: bool = True
+            bias: bool = True,
+            init: hk.initializers.Initializer = None
     ):
         """"""
         super().__init__()
         self.out_channels = out_channels
         self.heads = heads
         self.concat = concat
+        self.dropout_attention = dropout
+        self.dropout_nodes = dropout_nodes
         self.negative_slope = negative_slope
         self.add_self_loops = add_self_loops
 
         # Initialize parameters
         C = self.out_channels
         H = self.heads
-        self.linear = hk.Linear(C * H)
-        # Notice that the shape here is (2 * channel size) because the alpha weight vector
-        # is applied to the concatenation of two nodes features
-        self.alpha = hk.get_parameter("alpha", shape=[1, H, 2 * C], init=hk.initializers.RandomNormal())
-        if bias:
-            self.bias = hk.Bias()
-        else:
-            self.bias = None
+
+        if init is None:
+          init = hk.initializers.VarianceScaling(1.0, "fan_avg", "truncated_normal")
+
+        self.linear_proj = hk.Linear(C * H, with_bias=False, 
+                                     w_init=init)
+
+        self.scoring_fn_target = hk.get_parameter(
+            "scoring_fn_target", 
+            shape=[1, H, C], 
+            init=init)
+        self.scoring_fn_source = hk.get_parameter(
+            "scoring_fn_source", 
+            shape=[1, H, C], 
+            init=init)
 
     def __call__(self,
                  nodes: jnp.ndarray = None,
                  senders: jnp.ndarray = None,
                  receivers: jnp.ndarray = None,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
+                 graph: Optional[jraph.GraphsTuple] = None,
+                 training: bool = False
                  ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
         """"""
-        nodes, edges, receivers, senders = \
+        in_nodes_features, edges, receivers, senders = \
             validate_input(nodes, senders, receivers, edges, graph)
 
         C = self.out_channels
         H = self.heads
 
         try:
-            sum_n_node = nodes.shape[0]
+            sum_n_node = in_nodes_features.shape[0]
         except IndexError:
             raise IndexError('GATConv requires node features')
 
-        # Nodes features are transformed with a Linear layer
-        # Output size is (out_channels * heads) to simulate multiple heads weights
-        #  nodes.shape = (N, C*H)
-        nodes = self.linear(nodes)
+        # reshape to : (N, H, C)
+        nodes_features_proj = self.linear_proj(in_nodes_features).reshape(-1, H, C)
+
+        if training:
+            nodes_features_proj = hk.dropout(
+                jax.random.PRNGKey(42), self.dropout_nodes, nodes_features_proj)
 
         total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
         if self.add_self_loops:
@@ -113,58 +136,50 @@ class GATConv(hk.Module):
             receivers, senders = add_self_loops(receivers, senders,
                                                    total_num_nodes)
 
-        # We compute the softmax logits using a function that takes the
-        # embedded sender and receiver attributes.
-        #  sent_attributes.shape = (|edges|, C*H)
-        sent_attributes = nodes[senders]
-        received_attributes = nodes[receivers]
+        # shape: (N, H)
+        scores_source = jnp.sum(nodes_features_proj * self.scoring_fn_source, axis=-1)
+        scores_target = jnp.sum(nodes_features_proj * self.scoring_fn_target, axis=-1)
 
-        # x.shape = (|edges|, 2*C*H)
-        x = jnp.concatenate(
-            (sent_attributes, received_attributes), axis=1)
+        # scores_source_lifted shape: (|edges|, H)
+        # nodes_features_proj shape: (|edges|, H, C)
+        scores_source_lifted, scores_target_lifted, nodes_features_proj_lifted \
+            = self.lift(scores_source, scores_target, nodes_features_proj, senders, receivers)
 
-        # x.shape = (|edges|, 2, C*H)
-        x = jnp.reshape(x, (-1, H, 2 * C))
+        # shape: (|edges|, 1)
+        scores_per_edge = jax.nn.leaky_relu(
+            (scores_source_lifted + scores_target_lifted), 
+            negative_slope=self.negative_slope)
 
-        att_softmax_logits = x * self.alpha
-        #  att_softmax_logits.shape = (|edges|, H)
-        att_softmax_logits = jnp.sum(att_softmax_logits, axis=-1)
+        # shape: (|edges|, 1)
+        attentions_per_edge = jraph.segment_softmax(scores_per_edge, receivers, num_segments=sum_n_node)
 
-        att_softmax_logits = jax.nn.leaky_relu(
-            att_softmax_logits, negative_slope=self.negative_slope)
+        if training:
+            attentions_per_edge = hk.dropout(
+                jax.random.PRNGKey(42), self.dropout_attention, attentions_per_edge)
 
-        #: TODO: dropout only during training
-        # nodes = haiku.dropout(
-        #    rng, self.dropout, nodes)
+        # shape: (|edges|, H, C)
+        nodes_features_proj_lifted_weighted = nodes_features_proj_lifted * jnp.expand_dims(attentions_per_edge, axis=-1)
 
-        # Compute the attention softmax weights on the entire tree.
-        #  att_weights.shape = (|edges|, H)
-        att_weights = jraph.segment_softmax(
-            att_softmax_logits, segment_ids=receivers, num_segments=sum_n_node)
-
-        # sent_attributes.shape = (|edges|, H, C)
-        sent_attributes = jnp.reshape(sent_attributes, (-1, H, C))
-
-        # att_weights.shape = (|edges|, H, 1)
-        att_weights = jnp.reshape(att_weights, (-1, H, 1))
-
-        # Apply attention weights.
-        # messages.shape = (|edges|, H, C)
-        messages = att_weights * sent_attributes
-
-        # Aggregate messages to nodes.
-        nodes = jax.ops.segment_sum(messages, receivers, num_segments=sum_n_node)
+        # shape: (N, H, C)
+        out_nodes_features = jax.ops.segment_sum(nodes_features_proj_lifted_weighted, receivers, num_segments=sum_n_node)
 
         if self.concat:
-            nodes = jnp.reshape(nodes, (-1, H * C))
+            out_nodes_features = jnp.reshape(out_nodes_features, (-1, H * C))
         else:
-            nodes = jnp.mean(nodes, axis=1)
-
-        if self.bias is not None:
-            nodes = self.bias(nodes)
+            out_nodes_features = jnp.mean(out_nodes_features, axis=1)
 
         if graph is not None:
-            graph = graph._replace(nodes=nodes)
+            graph = graph._replace(nodes=out_nodes_features)
             return graph
         else:
-            return nodes
+            return out_nodes_features
+
+    def lift(self, scores_source, scores_target, nodes_features_matrix_proj, senders, receivers):
+        src_nodes_index = senders
+        trg_nodes_index = receivers
+
+        scores_source = scores_source[src_nodes_index]
+        scores_target = scores_target[trg_nodes_index]
+        nodes_features_matrix_proj_lifted = nodes_features_matrix_proj[src_nodes_index]
+
+        return scores_source, scores_target, nodes_features_matrix_proj_lifted

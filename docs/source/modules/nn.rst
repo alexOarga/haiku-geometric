@@ -50,8 +50,8 @@ Dense Layers
    :special-members:
    :exclude-members: __abstractmethods__, __module__, __repr__
 
-Aggregation Operators
----------------------
+Agregation Operators
+--------------------
 
 .. currentmodule:: haiku_geometric.nn.aggr
 .. autosummary::
