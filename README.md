@@ -13,7 +13,7 @@
 
 ## Overview
 
-Haiku Geometric is a collection of graph neural network (GNN) implementations in [JAX](https://jax.readthedocs.io/en/latest/notebooks/quickstart.html). It tries to provide **object-oriented** and **easy-to-use** modules for GNNs.
+Haiku Geometric is a collection of graph neural networks (GNNs) implemented using [JAX](https://jax.readthedocs.io/en/latest/notebooks/quickstart.html). It tries to provide **object-oriented** and **easy-to-use** modules for GNNs.
 
 Haiku Geometric is built on top of [Haiku](https://github.com/deepmind/dm-haiku) and [Jraph](https://github.com/deepmind/jraph).
 It is deeply inspired by [PyTorch Geometric](https://github.com/pyg-team/pytorch_geometric). 
@@ -88,8 +88,8 @@ The following examples are available:
 
 |                                                     | Link                                                                                                                                                                                                                                    |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Graph Convolution Networks with Karate Club dataset | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GCNConv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GCNConv_karate_club.ipynb)
-| Graph Attention Networks with CORA dataset          | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GATConv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GATConv_CORA.ipynb) |
+| Graph Convolution Networks with Karate Club dataset | [Try it on colab](https://haiku-geometric.readthedocs.io/en/latest/examples.html) |
+| Graph Attention Networks with CORA dataset          | [Try it on colab](https://haiku-geometric.readthedocs.io/en/latest/examples.html) |
 
 
 
