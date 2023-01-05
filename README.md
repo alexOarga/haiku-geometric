@@ -88,7 +88,7 @@ The following examples are available:
 
 |                                                     | Link                                                                                                                                                                                                                                    |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Graph Convolution Networks with Karate Club dataset | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GCNCOnv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GCNConv_karate_club.ipynb)
+| Graph Convolution Networks with Karate Club dataset | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GCNConv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GCNConv_karate_club.ipynb)
 | Graph Attention Networks with CORA dataset          | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GATConv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GATConv_CORA.ipynb) |
 
 
