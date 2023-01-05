@@ -1,4 +1,4 @@
-haiku-geometric==0.0.1a0
+haiku-geometric
 nbsphinx==0.8.9
 sphinx==4.5.0
 sphinx-autodoc-typehints==1.11.1
