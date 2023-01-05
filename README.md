@@ -86,10 +86,10 @@ The documentation for Haiku Geometric can be found [here](https://haiku-geometri
 Haiku Geometric comes with a few examples that showcase the usage of the library.
 The following examples are available:
 
-|                                                     | Link        |
-|-----------------------------------------------------|-------------|
-| Graph Convolution Networks with Karate Club dataset | <a target="_blank" href="https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GCNConv_karate_club.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a> |
-| Graph Attention Networks with CORA dataset          | <a target="_blank" href="https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GATConv_CORA.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a> |
+|                                                     | Link                                                                                                                                                                                                                                    |
+|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Graph Convolution Networks with Karate Club dataset | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GCNCOnv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GCNConv_karate_club.ipynb)
+| Graph Attention Networks with CORA dataset          | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GATConv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GATConv_CORA.ipynb) |
 
 
 

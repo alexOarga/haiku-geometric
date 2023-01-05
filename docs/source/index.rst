@@ -22,7 +22,7 @@ Alternatively you can install it from source::
 
    
 .. toctree::
-   :caption: Quickstart
+   :caption: Contents
    :maxdepth: 1
 
    notebooks/quickstart
