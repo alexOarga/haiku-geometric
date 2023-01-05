@@ -116,7 +116,7 @@ Currently, Haiku Geometric includes the following GNN modules:
 
 If you encounter any issue, please [open an issue](https://github.com/alexOarga/haiku-geometric/issues/new).
 
-## Runnin tests
+## Running tests
 
 Haiku Geometric can be tested using `pytest` by running the following command:
 
