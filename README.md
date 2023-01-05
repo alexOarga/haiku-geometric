@@ -88,8 +88,8 @@ The following examples are available:
 
 |                                                     | Link                                                                                                                                                                                                                                    |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Graph Convolution Networks with Karate Club dataset | [Try it on colab](https://haiku-geometric.readthedocs.io/en/latest/examples.html) |
-| Graph Attention Networks with CORA dataset          | [Try it on colab](https://haiku-geometric.readthedocs.io/en/latest/examples.html) |
+| Graph Convolution Networks with Karate Club dataset | [Try it](https://haiku-geometric.readthedocs.io/en/latest/examples.html) |
+| Graph Attention Networks with CORA dataset          | [Try it](https://haiku-geometric.readthedocs.io/en/latest/examples.html) |
 
 
 
