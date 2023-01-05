@@ -13,10 +13,10 @@
 
 ## Overview
 
-Haiku Geometric is a collection of graph neural network (GNN) implementations in [JAX](https://jax.readthedocs.io/en/latest/notebooks/quickstart.html). Haiku Geometric tries to provide **object-oriented** and **easy-to-use** modules for GNNs.
+Haiku Geometric is a collection of graph neural network (GNN) implementations in [JAX](https://jax.readthedocs.io/en/latest/notebooks/quickstart.html). It tries to provide **object-oriented** and **easy-to-use** modules for GNNs.
 
 Haiku Geometric is built on top of [Haiku](https://github.com/deepmind/dm-haiku) and [Jraph](https://github.com/deepmind/jraph).
-Haiku Geometric is deeply inspired by [PyTorch Geometric](https://github.com/pyg-team/pytorch_geometric). 
+It is deeply inspired by [PyTorch Geometric](https://github.com/pyg-team/pytorch_geometric). 
 In most cases, Haiku Geometric tries to replicate the API of PyTorch Geometric to allow code sharing between the two.
 
 Haiku Geometric is still under development and I would advise against using it in production.
