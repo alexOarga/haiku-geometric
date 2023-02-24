@@ -108,12 +108,16 @@ class GPSLayer(hk.Module):
                     model_size=dim_h,
                     w_init=hk.initializers.TruncatedNormal())
         elif global_model_type == 'Performer':
+            raise NotImplementedError("Performer not yet supported for GPSLayer")
+            # TODO: Include google's JAX performer implementation
+            '''
             self.self_attn = SelfAttention(
                     num_heads=num_heads, 
                     key_size=dim_h, 
                     value_size=dim_h, 
                     model_size=dim_h,
                     w_init=hk.initializers.TruncatedNormal())
+            '''
         elif global_model_type == "BigBird":
             raise NotImplementedError("BigBird not yet supported for GPSLayer")
         else:
@@ -163,7 +167,7 @@ class GPSLayer(hk.Module):
             if training:
                 h_local = hk.dropout(jax.random.PRNGKey(42), self.dropout, h_local)
             else:
-                #: TODO: might be necesary to scale weights
+                #: TODO: might be necessary to scale weights
                 pass
             h_local = h_in1 + h_local  # Residual connection.
             

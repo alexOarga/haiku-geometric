@@ -49,6 +49,7 @@ Alternatively you can install it from source::
    modules/nn
    modules/datasets
    modules/transforms
+   modules/utils
 
 
 Indices and tables
