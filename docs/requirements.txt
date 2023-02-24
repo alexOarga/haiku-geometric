@@ -1,4 +1,5 @@
 haiku-geometric
+docutils==0.19
 nbsphinx==0.8.9
 sphinx==4.5.0
 sphinx-autodoc-typehints==1.11.1
@@ -11,7 +12,8 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-katex==0.8.6
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
-Jinja2<3.1
+sphinx-rtd-theme==1.1.1
+Jinja2==3.1.2
 ipykernel==5.3.4
 ipython==7.16.1
 ipython-genutils==0.2.0
