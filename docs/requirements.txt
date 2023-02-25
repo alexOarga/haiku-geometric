@@ -7,6 +7,7 @@ beautifulsoup4==4.11.1
 bleach==5.0.1
 decorator==5.1.1
 defusedxml==0.7.1
+docutils-0.17.1
 entrypoints==0.4
 fastjsonschema==2.16.2
 haiku-geometric==0.0.2
@@ -55,10 +56,8 @@ sphinxcontrib-katex==0.8.6
 sphinxcontrib-devhelp==1.0.2
 sphinxcontrib-htmlhelp==2.0.0
 sphinxcontrib-jsmath==1.0.1
-sphinxcontrib-katex==0.8.6
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
-sphinx-rtd-theme==1.1.1
 tabulate==0.9.0
 tinycss2==1.2.1
 tornado==6.2
