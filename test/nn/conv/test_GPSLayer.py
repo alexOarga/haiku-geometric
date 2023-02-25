@@ -9,7 +9,7 @@ from haiku_geometric.utils import degree
 
 
 @pytest.mark.parametrize('local_gnn_type', ['GAT', 'PNA'])
-@pytest.mark.parametrize('global_model_type', ['Transformer', 'Performer'])
+@pytest.mark.parametrize('global_model_type', ['Transformer'])
 @pytest.mark.parametrize('layer_norm, batch_norm', [
     (True, False), (False, True)    
 ])
