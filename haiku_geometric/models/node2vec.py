@@ -6,27 +6,30 @@ from typing import Optional, Tuple
 from haiku_geometric.utils import random_walk
 
 
-class Node2Vec:
-    r"""
+class Node2Vec(hk.Module):
+    """
+    The Node2vec model from the paper:
+    `"node2vec: Scalable Feature Learning for Networks" <https://arxiv.org/abs/1607.00653>`_ paper.
     """
     def __init__(
-        self,
-        senders: jnp.ndarray,
-        receivers: jnp.ndarray,
-        embedding_dim: int,
-        walk_length: int,
-        context_size: int,
-        walks_per_node: int = 1,
-        p: float = 1.0,
-        q: float = 1.0,
-        num_negative_samples: int = 1,
-        num_nodes: Optional[int] = None,
-        rng = jax.random.PRNGKey(42),
-    ):
+            self,
+            senders: jnp.ndarray,
+            receivers: jnp.ndarray,
+            embedding_dim: int,
+            walk_length: int,
+            context_size: int,
+            walks_per_node: int = 1,
+            p: float = 1.0,
+            q: float = 1.0,
+            num_negative_samples: int = 1,
+            num_nodes: Optional[int] = None,
+            rng=jax.random.PRNGKey(42),
+         ):
+        super().__init__()
 
         N = self._num_nodes(senders, receivers, num_nodes)
         self.num_nodes = N
-        self.senders = senders # TODO: recover from BCOO
+        self.senders = senders  # TODO: recover from BCOO
         self.receivers = receivers
         self.adj = BCOO((
             jnp.ones(senders.shape[0]),
@@ -44,12 +47,9 @@ class Node2Vec:
         self.num_negative_samples = num_negative_samples
         self.rng = rng
 
+        w_init = hk.initializers.TruncatedNormal()
+        self.embedding = hk.get_parameter("embedding", shape=[self.num_nodes, self.embedding_dim], init=w_init)
 
-    def _num_nodes(self, senders: jnp.ndarray, receivers: jnp.ndarray, num_nodes: Optional[int] = None):
-        if num_nodes is None:
-            return jnp.max(jnp.concatenate([senders, receivers])) + 1
-        else:
-            return num_nodes
 
     def pos_sample(self, batch: jnp.ndarray):
         """Returns positive samples."""
@@ -58,7 +58,7 @@ class Node2Vec:
 
         walks = []
         num_walks_per_rw = 1 + self.walk_length + 1 - self.context_size
-        for j in range(num_walks_per_rw):
+        for j in range(num_walks_per_rw - 1):
             walks.append(rw[:, j:j + self.context_size])
         return jnp.concatenate(walks, axis=0)
 
@@ -78,22 +78,9 @@ class Node2Vec:
         neg = self.neg_sample(batch)
         return pos, neg
 
-
-
-class Node2VecTrainer(hk.Module):
-    def __init__(self, model: Node2Vec):
-        super().__init__()
-        self.model = model
-
-        self.embedding_dim = model.embedding_dim
-        self.num_nodes = model.num_nodes
-        self.EPS = model.EPS
-
-        w_init = hk.initializers.TruncatedNormal()
-        self.embedding = hk.get_parameter("embedding", shape=[self.num_nodes, self.embedding_dim], init=w_init)
-        self.rng = model.rng
-
-    def __call__(self, pos_rw: jnp.ndarray, neg_rw: jnp.ndarray):
+    def __call__(self):
+        ''''''
+        pos_rw, neg_rw = self.sample(jnp.arange(self.num_nodes))
         """ This is a loss function. """
         start, rest = pos_rw[:, 0].astype(int), pos_rw[:, 1:].astype(int)
 

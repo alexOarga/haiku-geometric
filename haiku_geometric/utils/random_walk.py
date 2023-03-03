@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+from jax import jit, vmap
 
 
 def random_walk(
@@ -68,3 +69,27 @@ def _random_walk(senders, receivers, walk_length, p, q, t, rng):
                 break
         walk = walk.at[j].set(new_node)
     return walk
+
+def _hk_random_walk(rowptr, col, start, walk_length, p, q, rng=jax.random.PRNGKey(0)):
+    '''
+    This is a Haiku transform-compatible version of the random walk function
+    However, it needs further testing before integration
+    TODO: test and integrate this function
+    '''
+    walks = jnp.zeros((len(start), walk_length), dtype=jnp.int32)
+    rowptr = rowptr.astype(jnp.int32)
+    col = col.astype(jnp.int32)
+    for i, start_node in enumerate(start):
+        cur_node = start_node
+        for j in range(walk_length):
+            neighbors = col[rowptr[jnp.int64(cur_node):jnp.int64(cur_node) + 1]]
+            probs = jnp.ones_like(neighbors, dtype=jnp.float32)
+            probs *= 1.0 / p
+            mask = (neighbors != cur_node)
+            probs.at[mask].set(probs[mask] * q)
+            probs = jax.nn.softmax(probs)
+            next_node = jax.random.choice(jax.random.PRNGKey(0), neighbors, p=probs)
+            walks = walks.at[(i, j)].set(cur_node)
+            cur_node = next_node
+    return walks
+
