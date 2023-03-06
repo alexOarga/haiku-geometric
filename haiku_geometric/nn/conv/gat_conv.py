@@ -133,8 +133,9 @@ class GATConv(hk.Module):
             # We add self edges to the senders and receivers so that each node
             # includes itself in aggregation.
             #   receivers (or senders) shape = (|edges|, 1)
-            receivers, senders = add_self_loops(receivers, senders,
-                                                   total_num_nodes)
+            senders, receivers, edges = add_self_loops(senders, receivers, edges,
+                                                fill_value=1.0, # TODO: use 'mean' as a fill value
+                                                num_nodes=total_num_nodes)
 
         # shape: (N, H)
         scores_source = jnp.sum(nodes_features_proj * self.scoring_fn_source, axis=-1)

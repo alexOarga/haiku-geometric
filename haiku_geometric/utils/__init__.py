@@ -1,9 +1,10 @@
 from .utils import *
-from .laplacian import get_laplacian_matrix
+from .laplacian import get_laplacian, get_laplacian_matrix
 from .random_walk import random_walk
 
 __all__ = [
     'random_walk',
+    'get_laplacian',
     'get_laplacian_matrix'
 ]
 

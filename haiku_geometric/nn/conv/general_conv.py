@@ -5,7 +5,6 @@ import jax.tree_util as tree
 import jraph
 
 from haiku_geometric.nn.aggr.utils import aggregation
-from haiku_geometric.transforms import add_self_loops
 from haiku_geometric.nn.conv.utils import validate_input
 from typing import Optional, Union
 
