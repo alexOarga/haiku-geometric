@@ -23,13 +23,15 @@ Haiku Geometric is still under development and I would advise against using it i
 
 ## Installation
 
-Haiku Geometric can be installed using pip:
-```bash
-pip install haiku-geometric
-```
-Alternatively, you can install Haiku Geometric from source:
+Haiku Geometric can be installed from source:
+
 ```bash
 pip install git+https://github.com/alexOarga/haiku-geometric.git
+```
+
+Alternatively, you can install Haiku Geometric using pip:
+```bash
+pip install haiku-geometric
 ```
 
 ## Quickstart
