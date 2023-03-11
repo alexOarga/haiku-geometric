@@ -85,13 +85,6 @@ import jax.numpy as jnp
 
 mathjax3_config = {'chtml': {'displayAlign': 'left'}}
 
-def setup(app):
-  def rst_jinja_render(app, _, source):
-    rst_context = {'haiku_geometric': haiku_geometric}
-    source[0] = app.builder.templates.render_string(source[0], rst_context)
-
-  app.connect('source-read', rst_jinja_render)
-
 def linkcode_resolve(domain, info):
   """Resolve a GitHub URL corresponding to Python object."""
   if domain != 'py':
