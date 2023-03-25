@@ -133,7 +133,8 @@ class GCNConv(hk.Module):
 
             nodes = nodes * norm_vals
 
-        messages = nodes[conv_senders] * edges
+        messages = nodes[conv_senders].transpose()
+        messages = jnp.multiply(messages, jnp.squeeze(edges)).transpose()
         nodes = self.aggr(messages, conv_receivers,
                           total_num_nodes)
 

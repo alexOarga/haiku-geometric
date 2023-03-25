@@ -12,3 +12,10 @@ def num_nodes(senders: jnp.ndarray, receivers: jnp.ndarray, num_nodes: Optional[
         return jnp.max(jnp.concatenate([senders, receivers])) + 1
     else:
         return num_nodes
+
+# Function not yet avilable in JAX numpy
+# See: https://github.com/google/jax/issues/2680
+def fill_diagonal(a, val):
+  assert a.ndim >= 2
+  i, j = jnp.diag_indices(min(a.shape[-2:]))
+  return a.at[..., i, j].set(val)

@@ -51,7 +51,7 @@ def coalesce(
         aux = idx[1:][perm]
         idx = idx.at[1:].set(aux)
         edge_index = edge_index[:, perm]
-        edge_attr = edge_attr[perm]
+        edge_attr = edge_attr[perm] if edge_attr is not None else None
 
     mask = idx[1:] > idx[:-1]
     if jnp.alltrue(mask):

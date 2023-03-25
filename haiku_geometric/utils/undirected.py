@@ -28,6 +28,6 @@ def to_undirected(
     """
 
     senders, receivers = \
-        jnp.concatenate([senders, receivers], axis=0), jnp.concatenate([receivers, senders], axis=0)
+        jnp.concatenate([senders, receivers], axis=-1), jnp.concatenate([receivers, senders], axis=-1)
     edge_attr = jnp.concatenate([edge_attr, edge_attr], axis=0) if edge_attr is not None else None
     return coalesce(senders, receivers, edge_attr, num_nodes)
