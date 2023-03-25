@@ -17,7 +17,7 @@ class MLP(hk.Module):
       b_init: Optional[hk.initializers.Initializer] = None,
       with_bias: bool = True,
       with_layer_norm: bool = False,
-      activation: Callable[[jax.Array], jax.Array] = jax.nn.relu,
+      activation: Callable[[jax.ndarray], jax.ndarray] = jax.nn.relu,
       activate_final: bool = False,
       name: Optional[str] = None,
   ):
@@ -65,10 +65,10 @@ class MLP(hk.Module):
 
   def __call__(
       self,
-      inputs: jax.Array,
+      inputs: jax.ndarray,
       dropout_rate: Optional[float] = None,
       rng=None,
-  ) -> jax.Array:
+  ) -> jax.ndarray:
     """Connects the module to some inputs.
     Args:
       inputs: A Tensor of shape ``[batch_size, input_size]``.
