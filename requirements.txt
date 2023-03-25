@@ -4,3 +4,4 @@ dm-haiku
 jraph
 setuptools
 tqdm
+numba
