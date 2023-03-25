@@ -1,4 +1,5 @@
 import jax
+import jax.numpy as jnp
 import haiku as hk
 from typing import Optional, Tuple, Callable, Iterable
 
@@ -17,7 +18,7 @@ class MLP(hk.Module):
       b_init: Optional[hk.initializers.Initializer] = None,
       with_bias: bool = True,
       with_layer_norm: bool = False,
-      activation: Callable[[jax.ndarray], jax.ndarray] = jax.nn.relu,
+      activation: Callable[[jnp.ndarray], jnp.ndarray] = jax.nn.relu,
       activate_final: bool = False,
       name: Optional[str] = None,
   ):
@@ -65,10 +66,10 @@ class MLP(hk.Module):
 
   def __call__(
       self,
-      inputs: jax.ndarray,
+      inputs: jnp.ndarray,
       dropout_rate: Optional[float] = None,
       rng=None,
-  ) -> jax.ndarray:
+  ) -> jnp.ndarray:
     """Connects the module to some inputs.
     Args:
       inputs: A Tensor of shape ``[batch_size, input_size]``.
