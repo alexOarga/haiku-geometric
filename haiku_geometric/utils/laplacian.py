@@ -63,7 +63,8 @@ def get_laplacian_matrix(
         L = jnp.eye(N) - jnp.matmul(D_inv, adj)
     else:
         # L = D - A
-        L = jnp.diag(jnp.sum(adj, axis=1)) - adj
+        D = jnp.diag(jnp.sum(adj, axis=1))
+        L = D - adj
     return L
 
 
@@ -102,7 +103,7 @@ def get_laplacian(
             (default: :obj:`None`)
 
     Returns:
-        Tuple(jnp.ndarray, jnp.ndarray, jnp.ndarray): Senders, receivers and weights of the Laplacian.
+        :obj:`Tuple(jnp.ndarray, jnp.ndarray, jnp.ndarray)`: Senders, receivers and weights of the Laplacian.
     """
     if normalization is not None:
         assert normalization in ["sym", "rw"]
@@ -134,3 +135,106 @@ def get_laplacian(
                                                             fill_value=1.0, num_nodes=N)
 
     return senders, receivers, edge_weight
+
+# This function was directly adapted from GraphGPS repository:
+# https://github.com/rampasek/GraphGPS
+def eigv_normalizer(eigenvectors, eigenvalues, normalization="L2", eps=1e-12):
+    r"""
+    Normalizes eigenvectors and eigenvalues.
+
+    Args:
+        eigenvectors (jnp.ndarray): Input eigenvectors.
+        eigenvalues (jnp.ndarray): Input eigenvalues.
+        normalization (str, optional): Normalization to apply to the eigenvectors. Available options are: :obj:`None`, :obj:`"L1"`,  :obj:`"L2"`, :obj:`"abs-max"`,  :obj:`"wavelength"`,  :obj: `"wavelength-asin"` and :obj:`"wavelength-soft"`.
+            (default: :obj:`"L2"`)
+        eps (float, optional): Small value to avoid division by zero.
+            (default: :obj:`1e-12`)
+    Returns:
+        :obj:`jnp.ndarray`: Normalized eigenvectors.
+    """
+    #eigenvalues = jnp.expand_dims(eigenvalues, axis=0)
+
+    if normalization is None:
+        return eigenvectors
+    if normalization == "L1":
+        denom = jnp.linalg.norm(eigenvectors, ord=1, axis=0)
+    elif normalization == "L2":
+        denom = jnp.linalg.norm(eigenvectors, ord=2, axis=0)
+    elif normalization == "abs-max":
+        denom = jnp.max(jnp.abs(eigenvectors), axis=0)
+    elif normalization == "wavelength":
+        denom = jnp.max(jnp.abs(eigenvectors), axis=0)
+        eigval_denom = jnp.sqrt(eigenvalues)
+        eigval_denom = eigval_denom.at[eigval_denom < eps].set(1)
+        denom = denom * eigval_denom * 2 / jnp.pi
+    elif normalization == "wavelength-asin":
+        denom_temp = jnp.max(jnp.abs(eigenvectors), axis=0).clip(min=eps)
+        eigenvectors = jnp.arcsin(eigenvectors / denom_temp)
+        eigenval_denom = jnp.sqrt(eigenvalues)
+        eigenval_denom = eigenval_denom.at[eigenval_denom < eps].set(1)
+        denom = eigenval_denom
+    elif normalization == "wavelength-soft":
+        denom = jax.nn.softmax(jnp.abs(eigenvectors), axis=0)* jnp.abs(eigenvectors).sum(axis=0, keepdims=True)
+        eigval_denom = jnp.sqrt(eigenvalues)
+        eigval_denom= eigval_denom.at[eigval_denom < eps].set(1)
+        denom = denom * eigval_denom
+    else:
+        raise ValueError("Unknown normalization: {}".format(normalization))
+
+    denom = denom.clip(min=eps)
+    eigenvectors = eigenvectors / denom
+    return eigenvectors
+
+def eigv_laplacian(
+        senders: jnp.ndarray,
+        receivers: jnp.ndarray,
+        edge_weight: jnp.ndarray = None,
+        normalization: Optional[str] = None,
+        num_nodes: Optional[int] = None,
+        k: int = 5,
+        eigv_norm: Optional[str] = 'L2',
+):
+    r"""Returns the top-k eigenvectors of the Laplacian of a graph.
+
+    Args:
+        senders (jnp.ndarray): The senders of the edges.
+        receivers (jnp.ndarray): The receivers of the edges.
+        edge_weight (jnp.ndarray): The weight of each edge.
+            (default: :obj:`None`)
+        normalization (str, optional) : The normalization to apply to the Laplacian.
+            (default: :obj:`None`). Available options are:
+            :obj:`None`, :obj:`"sym"` , :obj:`"rw"`.
+        num_nodes (int, optional): The number of nodes in the graph.
+            (default: :obj:`None`)
+        k (int, optional): The number of eigenvectors to return.
+            (default: :obj:`5`)
+        eigv_norm (str, optional): The normalization to apply to the eigenvectors.
+            (default: :obj:`"L2"`). Available options are:
+            1. :obj:`None` : No normalization.
+            2. :obj:`"L2"` : Normalize the eigenvectors to have unit L2 norm.
+
+    Returns:
+        :obj:`Tuple(jnp.ndarray, jnp.ndarray)`: The top-k eigenvalues and eigenvectors of the Laplacian.
+    """
+
+    L = get_laplacian_matrix(
+        senders, receivers, edge_weight, normalization,num_nodes)
+    evals, evects = jnp.linalg.eigh(L)
+
+    N = len(evals)
+    idx = (jnp.argsort(evals))[:k]
+    evals, evects = evals[idx], jnp.real(evects[:, idx])
+    evals = jnp.clip(jnp.real(evals), a_min=0)
+    evects = evects.astype(jnp.float32)
+    evects = eigv_normalizer(evects, evals, normalization=eigv_norm)
+
+    if N < k:
+        # pad on last dimension with nan
+        npad = [(0, 0)] * evects.ndim
+        npad[-1] = (0, k - N)
+        evects = jnp.pad(evects, npad, 'constant', constant_values=jnp.nan)
+        npad = [(0, 0)] * evals.ndim
+        npad[-1] = (0, k - N)
+        evals = jnp.pad(evals, npad, 'constant', constant_values=jnp.nan)
+
+    return evals, evects

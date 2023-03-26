@@ -42,7 +42,7 @@ def eigv_magnetic_laplacian_numba(
         k: int, k_excl: int, q: float, q_absolute: bool,
         norm_comps_sep: bool, l2_norm: bool, sign_rotate: bool,
         use_symmetric_norm: bool):
-    """k non-ptrivial *complex* eigenvectors of the smallest k eigenvectors of the magnetic laplacian.
+    r""" k non-ptrivial complex eigenvectors of the smallest k eigenvectors of the magnetic laplacian.
   Args:
     senders: Origin of the edges of shape [m].
     receivers: Target of the edges of shape [m].
@@ -173,23 +173,23 @@ def eigv_magnetic_laplacian(
     n_node (int): Number of nodes in the graph.
     k (int): Returns top k eigenvectors.
     k_excl (int): The top (trivial) eigenvalues / -vectors to exclude.
-    q (float): Factor in magnetic laplacian.
+    q (float, optional): Factor in magnetic laplacian.
         (default: :obj:`0.25`)
-    q_absolute (bool): If true `q` will be used, otherwise `q / m_imag / 2`.
+    q_absolute (bool, optional): If true `q` will be used, otherwise `q / m_imag / 2`.
         (default: :obj:`False`)
-    norm_comps_sep (bool): If true first imaginary part is separately normalized.
+    norm_comps_sep (bool, optional): If true first imaginary part is separately normalized.
         (default: :obj:`False`)
-    l2_norm (bool): If true we use l2 normalization and otherwise the abs max value.
+    l2_norm (bool, optional): If true we use l2 normalization and otherwise the abs max value.
       Will be treated as false if `norm_comps_sep` is true.
-        (default: :obj:`True`)
-    sign_rotate: If true we decide on the sign based on max real values and
+      (default: :obj:`True`)
+    sign_rotate (bool, optional): If true we decide on the sign based on max real values and
       rotate the imaginary part.
-        (default: :obj:`True`)
-    use_symmetric_norm: symmetric (True) or row normalization (False).
+      (default: :obj:`True`)
+    use_symmetric_norm (bool, optional): symmetric (True) or row normalization (False).
         (default: :obj:`False`)
   Returns:
-    (jnp.float64) list with arrays of shape [<= k] containing the k eigenvalues.
-    (Tuple[jnp.complex128, jnp.float64])) list with arrays of shape [n_node, <= k] containing the k eigenvectors.
+    - :obj:`(jnp.float64)` list with arrays of shape [<= k] containing the k eigenvalues.
+    - :obj:`(jnp.complex128)` list with arrays of shape [n_node, <= k] containing the k eigenvectors.
   """
     eigenvalues = jnp.zeros((k), dtype=jnp.float64)
     eigenvectors = jnp.zeros((n_node, k), dtype=jnp.complex128)
