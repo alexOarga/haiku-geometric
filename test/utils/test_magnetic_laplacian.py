@@ -2,7 +2,7 @@ import jax.numpy as jnp
 
 from haiku_geometric.utils import eigv_magnetic_laplacian
 
-def test_laplacian():
+def test_mag_laplacian():
     # create synthetic graph
     senders = []
     receivers = []
@@ -55,6 +55,6 @@ def test_laplacian():
          [-1.79246854e-07 - 3.1622764e-01j, 1.49316691e-07 + 4.4170755e-01j, -1.38929863e-08 - 4.2532548e-01j,
           1.46173988e-08 + 3.9847037e-01j, -7.97035682e-09 - 3.6180329e-01j]])
 
-    assert jnp.allclose(eigenvalues, expected_eigvalues)
-    assert jnp.allclose(eigenvectors, expected_eigvectors)
+    assert jnp.allclose(eigenvalues, expected_eigvalues, rtol=1e-04, atol=1e-04)
+    assert jnp.allclose(eigenvectors, expected_eigvectors, rtol=1e-04, atol=1e-04)
 

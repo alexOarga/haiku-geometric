@@ -8,9 +8,22 @@ class MLP(hk.Module):
   This is just the
   `Haiku MLP <https://github.com/deepmind/dm-haiku/blob/main/haiku/_src/nets/mlp.py>`_
   extended with layer normalization.
+
+  Args:
+    output_sizes: Sequence of layer sizes.
+    w_init: Initializer for :class:`~haiku.Linear` weights.
+    b_init: Initializer for :class:`~haiku.Linear` bias. Must be ``None`` if
+      ``with_bias=False``.
+    with_bias: Whether or not to apply a bias in each layer.
+    with_layer_norm: Whether or not to apply layer normalization in each layer.
+    activation: Activation function to apply between :class:`~haiku.Linear`
+      layers. Defaults to ReLU.
+    activate_final: Whether or not to activate the final layer of the MLP.
+    name: Optional name for this module.
+  Raises:
+    ValueError: If ``with_bias`` is ``False`` and ``b_init`` is not ``None``.
+
   """
-
-
   def __init__(
       self,
       output_sizes: Iterable[int],
@@ -22,21 +35,6 @@ class MLP(hk.Module):
       activate_final: bool = False,
       name: Optional[str] = None,
   ):
-    """Constructs an MLP.
-    Args:
-      output_sizes: Sequence of layer sizes.
-      w_init: Initializer for :class:`~haiku.Linear` weights.
-      b_init: Initializer for :class:`~haiku.Linear` bias. Must be ``None`` if
-        ``with_bias=False``.
-      with_bias: Whether or not to apply a bias in each layer.
-      with_layer_norm: Whether or not to apply layer normalization in each layer.
-      activation: Activation function to apply between :class:`~haiku.Linear`
-        layers. Defaults to ReLU.
-      activate_final: Whether or not to activate the final layer of the MLP.
-      name: Optional name for this module.
-    Raises:
-      ValueError: If ``with_bias`` is ``False`` and ``b_init`` is not ``None``.
-    """
     if not with_bias and b_init is not None:
       raise ValueError("When with_bias=False b_init must not be set.")
 

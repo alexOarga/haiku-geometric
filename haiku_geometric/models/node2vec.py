@@ -1,15 +1,33 @@
 import jax
 import jax.numpy as jnp
-from jax.experimental.sparse import BCOO
 import haiku as hk
+import numpy as np
 from typing import Optional, Tuple
+from jax.experimental.sparse import BCOO
 from haiku_geometric.utils import random_walk
+from haiku_geometric.utils import num_nodes as _num_nodes
 
 
 class Node2Vec(hk.Module):
     """
     The Node2vec model from the paper:
     `"node2vec: Scalable Feature Learning for Networks" <https://arxiv.org/abs/1607.00653>`_ paper.
+
+    Attributes:
+        embedding (jnp.ndarray): Embeddings of the node2vec model.
+
+    Args:
+        senders (jnp.ndarray): The source nodes of the graph.
+        receivers (jnp.ndarray): The target nodes of the graph.
+        embedding_dim (int): The dimensionality of the node embeddings.
+        walk_length (int): The length of the random walk.
+        context_size (int): Context size considered for positive sampling.
+        walks_per_node (int, optional): Number of walks per node. (default: :obj:`1`)
+        p (float, optional): Likelihood of revisiting a node in the walk. (default: :obj:`1.0`).
+        q (float, optional): Control parameter to interpolate between breadth-first strategy and depth-first strategy. (default: :obj:`1.0`).
+        num_negative_samples (int, optional): Number of negative samples for each positive sample. (default: :obj:`1`).
+        num_nodes (int, optional): The number of nodes in the graph. (default: :obj:`None`).
+        rng (jax.random.PRNGKey, optional): The random number generator seed. (default: :obj:`jax.random.PRNGKey(42)`).
     """
     def __init__(
             self,
@@ -27,14 +45,10 @@ class Node2Vec(hk.Module):
          ):
         super().__init__()
 
-        N = self._num_nodes(senders, receivers, num_nodes)
+        N = _num_nodes(senders, receivers, num_nodes)
         self.num_nodes = N
-        self.senders = senders  # TODO: recover from BCOO
+        self.senders = senders
         self.receivers = receivers
-        self.adj = BCOO((
-            jnp.ones(senders.shape[0]),
-            jnp.stack([senders, receivers], axis=0)),
-            shape=(N, N))
         self.EPS = 1e-15
         assert walk_length >= context_size
 
@@ -54,8 +68,13 @@ class Node2Vec(hk.Module):
     def pos_sample(self, batch: jnp.ndarray):
         """Returns positive samples."""
         #batch = jnp.repeat(batch, self.walks_per_node) # TODO: is batch needed?
-        rw = random_walk(self.senders, self.receivers, self.walk_length, self.p, self.q)
-
+        rw = random_walk(
+            np.asarray(self.senders),
+            np.asarray(self.receivers),
+            self.walk_length,
+            self.p,
+            self.q)
+        rw = jnp.array(rw)
         walks = []
         num_walks_per_rw = 1 + self.walk_length + 1 - self.context_size
         for j in range(num_walks_per_rw - 1):
@@ -79,13 +98,15 @@ class Node2Vec(hk.Module):
         return pos, neg
 
     def __call__(self):
-        ''''''
+        """ This is the loss function of the node2vec model.
+
+        Returns:
+            - Current embeddings of the model (jnp.ndarray).
+            - Loss computed in this forward call.
+        """
         pos_rw, neg_rw = self.sample(jnp.arange(self.num_nodes))
-        """ This is a loss function. """
         start, rest = pos_rw[:, 0].astype(int), pos_rw[:, 1:].astype(int)
 
-        jax.debug.print("s: {start}", start=start.shape)
-        jax.debug.print("e: {start}", start=self.embedding.shape)
         h_start = self.embedding[start].reshape(pos_rw.shape[0], 1, self.embedding_dim)
         h_rest = self.embedding[rest.reshape(-1)].reshape(pos_rw.shape[0], -1, self.embedding_dim)
 
@@ -100,4 +121,4 @@ class Node2Vec(hk.Module):
         out = (h_start * h_rest).sum(axis=-1).reshape(-1)
         neg_loss = -jnp.log(1 - jax.nn.sigmoid(out) + self.EPS).mean()
 
-        return pos_loss + neg_loss
+        return self.embedding, pos_loss + neg_loss
