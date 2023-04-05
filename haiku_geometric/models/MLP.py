@@ -11,8 +11,8 @@ class MLP(hk.Module):
 
   Args:
     output_sizes: Sequence of layer sizes.
-    w_init: Initializer for :class:`~haiku.Linear` weights.
-    b_init: Initializer for :class:`~haiku.Linear` bias. Must be ``None`` if
+    w_init: Initializer for :class:`haiku.Linear` weights.
+    b_init: Initializer for :class:`haiku.Linear` bias. Must be ``None`` if
       ``with_bias=False``.
     with_bias: Whether or not to apply a bias in each layer.
     with_layer_norm: Whether or not to apply layer normalization in each layer.
@@ -20,6 +20,7 @@ class MLP(hk.Module):
       layers. Defaults to ReLU.
     activate_final: Whether or not to activate the final layer of the MLP.
     name: Optional name for this module.
+    
   Raises:
     ValueError: If ``with_bias`` is ``False`` and ``b_init`` is not ``None``.
 
@@ -69,10 +70,12 @@ class MLP(hk.Module):
       rng=None,
   ) -> jnp.ndarray:
     """Connects the module to some inputs.
+    
     Args:
       inputs: A Tensor of shape ``[batch_size, input_size]``.
       dropout_rate: Optional dropout rate.
       rng: Optional RNG key. Require when using dropout.
+      
     Returns:
       The output of the model of size ``[batch_size, output_size]``.
     """

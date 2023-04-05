@@ -13,9 +13,6 @@ class Node2Vec(hk.Module):
     The Node2vec model from the paper:
     `"node2vec: Scalable Feature Learning for Networks" <https://arxiv.org/abs/1607.00653>`_ paper.
 
-    Attributes:
-        embedding (jnp.ndarray): Embeddings of the node2vec model.
-
     Args:
         senders (jnp.ndarray): The source nodes of the graph.
         receivers (jnp.ndarray): The target nodes of the graph.
@@ -28,6 +25,10 @@ class Node2Vec(hk.Module):
         num_negative_samples (int, optional): Number of negative samples for each positive sample. (default: :obj:`1`).
         num_nodes (int, optional): The number of nodes in the graph. (default: :obj:`None`).
         rng (jax.random.PRNGKey, optional): The random number generator seed. (default: :obj:`jax.random.PRNGKey(42)`).
+
+    ** Attributes:**
+
+        - **embedding** (jnp.ndarray): Embeddings of the node2vec model.
     """
     def __init__(
             self,
@@ -43,6 +44,7 @@ class Node2Vec(hk.Module):
             num_nodes: Optional[int] = None,
             rng=jax.random.PRNGKey(42),
          ):
+        """"""
         super().__init__()
 
         N = _num_nodes(senders, receivers, num_nodes)
