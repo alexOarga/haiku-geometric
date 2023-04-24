@@ -214,7 +214,8 @@ def eigv_laplacian(
             2. :obj:`"L2"` : Normalize the eigenvectors to have unit L2 norm.
 
     Returns:
-        :obj:`Tuple(jnp.ndarray, jnp.ndarray)`: The top-k eigenvalues and eigenvectors of the Laplacian.
+        :obj:`(jnp.ndarray)`:  (k,) eigenvalues.
+        :obj:`(jnp.ndarray)`:  (num_nodes, k) of eigenvector values per node.
     """
 
     L = get_laplacian_matrix(

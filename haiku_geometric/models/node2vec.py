@@ -26,7 +26,7 @@ class Node2Vec(hk.Module):
         num_nodes (int, optional): The number of nodes in the graph. (default: :obj:`None`).
         rng (jax.random.PRNGKey, optional): The random number generator seed. (default: :obj:`jax.random.PRNGKey(42)`).
 
-    ** Attributes:**
+    **Attributes:**
 
         - **embedding** (jnp.ndarray): Embeddings of the node2vec model.
     """

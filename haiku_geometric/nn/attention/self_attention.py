@@ -1,5 +1,6 @@
 import haiku as hk
 import jax
+import warnings
 import jax.numpy as jnp
 from typing import Optional
 
@@ -15,6 +16,12 @@ class SelfAttention(hk.MultiHeadAttention):
             mask: Optional[jnp.ndarray] = None,
     ) -> jnp.ndarray:
         """"""
+        warnings.warn(
+            "SelfAttention will be removed"
+            "Please use haiku.MultiHeadAttention.",
+            DeprecationWarning,
+        )
+
         key = key if key is not None else query
         value = value if value is not None else query
 

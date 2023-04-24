@@ -49,8 +49,10 @@ Alternatively you can install it from source::
    modules/nn
    modules/datasets
    modules/models
+   modules/posenc
    modules/transforms
    modules/utils
+
 
 
 Indices and tables
