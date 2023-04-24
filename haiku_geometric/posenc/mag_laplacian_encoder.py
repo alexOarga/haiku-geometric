@@ -11,7 +11,7 @@ from haiku_geometric.utils import to_undirected, eigv_laplacian
 
 class MagLaplacianEncoder(hk.Module):
     r"""
-    MagLapNet Positional Encoder described in the `"MagLapNet: A Spectral Graph Neural Network for Graph Classification" <https://arxiv.org/abs/2104.06700>`_ paper.
+    MagLapNet Positional Encoder described in the `"Transformers Meet Directed Graphs" <https://arxiv.org/pdf/2302.00049>`_ paper.
     Positional encodings are computed using the Magnetic Laplacian matrix (Hermitian matrix).
 
     Usage::
