@@ -153,7 +153,7 @@ def eigv_magnetic_laplacian_numba(
 def eigv_magnetic_laplacian(
         senders: jnp.ndarray,
         receivers: jnp.ndarray,
-        n_node: jnp.ndarray,
+        n_node: int,
         k: int,
         k_excl: int,
         q: float = 0.25,

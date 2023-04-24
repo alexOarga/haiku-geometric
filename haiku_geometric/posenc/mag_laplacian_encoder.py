@@ -50,7 +50,34 @@ class MagLaplacianEncoder(hk.Module):
                  concatenate_eigenvalues: bool = False,
                  norm: Optional[Any] = None):
         r"""
-        
+        Args:
+            d_model_elem (int, optional): Embedding dimension for each element of the eigenvectors.
+                (default: :obj:`32`).
+            d_model_aggr (int, optional): Dimension of the aggregation of all the elements of the eigenvectors.
+                (default: :obj:`256`).
+            num_heads (int, optional): Number of attention heads 
+                (default: :obj:`4`).
+            n_layers (int, optional): Number of layers for the MLPs.
+                (default: :obj:`1`).
+            dropout (float, optional): Dropout rate.
+                (default: :obj:`0.2`).
+            activation (Callable[[jnp.ndarray], jnp.ndarray], optional): Activation function.
+                (default: :obj:`jax.nn.relu`).
+            return_real_output (bool, optional): Whether to return only the real part of the output.
+                (default: :obj:`True`).
+            consider_im_part (bool, optional): Whether to consider the imaginary part of the eigenvectors.
+                (default: :obj:`True`).
+            use_signnet (bool, optional): Whether to use the SignNet, this is, each eigenvector :math:`\gamma_i` is
+                processed as :math:`f_{elem}(\gamma_i) + f_{elem}(-\gamma_i)` where :math:`f_{elem}` is an MLP or a GNN.
+                (default: :obj:`True`).
+            use_gnn (bool, optional): Whether to use a GNN aggregate embeddings of the eigenvectors instead of an MLP.
+                (default: :obj:`False`).
+            use_attention (bool, optional): Whether to apply a multi-head attention layer to the embeddings.
+                (default: :obj:`False`).
+            concatenate_eigenvalues (bool, optional): Wheter to initially concatenate eignevalues to the eigenvectors.
+                (default: :obj:`False`).
+            norm (Callable[[jnp.ndarray], jnp.ndarray], optional): Normalization layer
+                (default: :obj:`None`).
         """
         super().__init__()
         self.concatenate_eigenvalues = concatenate_eigenvalues
@@ -99,7 +126,14 @@ class MagLaplacianEncoder(hk.Module):
                  eigenvalues: jnp.ndarray, eigenvectors: jnp.ndarray,
                  is_training: bool, call_args=None):
         r"""
-
+        Args:
+            senders (jnp.ndarray): indices of the senders nodes.
+            receivers (jnp.ndarray): indices of the receivers nodes.
+            eigenvalues (torch.Tensor): Eigenvalues of the Laplacian matrix with shape :obj:`[K,]`.
+            eigenvectors (torch.Tensor): Eigenvectors of the Laplacian matrix with shape :obj:`[N, K]`.
+            is_training (bool): Whether the model is in training mode.
+        Returns:
+            torch.Tensor: Encoded features with shape :obj:`[N, d_model_aggr]`.
         """
         padding_mask = (eigenvalues > 0)[..., None, :]
         padding_mask = padding_mask.at[..., 0].set(True)

@@ -8,7 +8,7 @@ import jax.numpy as jnp
 import numpy as np
 
 
-def layer_norm(x: jax.Array) -> jax.Array:
+def layer_norm(x: jnp.ndarray) -> jnp.ndarray:
     """Applies a unique LayerNorm to x with default settings."""
     ln = hk.LayerNorm(axis=-1, create_scale=True, create_offset=True)
     return ln(x)

@@ -169,9 +169,6 @@ class LaplacianEncoder(hk.Module):
             if is_training:
                 pos_enc = hk.dropout(hk.next_rng_key(), self.model_dropout, pos_enc)
 
-        def _masked_fill(mask, a, fill):
-            return jax.lax.select(mask, a, jax.lax.broadcast(fill, a.shape))
-
         pos_enc.at[empty_mask[:, :, 0]].set(0.)
         pos_enc = jnp.sum(pos_enc, axis=1, keepdims=False)
 
