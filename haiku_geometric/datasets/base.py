@@ -27,8 +27,8 @@ class DataGraphTuple(NamedTuple):
     edges: Optional[ArrayTree]
     receivers: Optional[jnp.ndarray]  # with integer dtype
     senders: Optional[jnp.ndarray]  # with integer dtype
-    n_node: int  # with integer dtype
-    n_edge: int   # with integer dtype
+    n_node: jnp.ndarray  # with integer dtype
+    n_edge: jnp.ndarray   # with integer dtype
     globals: Optional[ArrayTree]
     position: Optional[jnp.ndarray]
     y: Optional[jnp.ndarray]
