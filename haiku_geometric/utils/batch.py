@@ -32,7 +32,7 @@ def batch(graphs: Sequence[DataGraphTuple]) -> DataGraphTuple:
         globals=_map_concat([g.globals for g in graphs]),
         position=_map_concat([g.position for g in graphs]),
         y=_map_concat([g.y for g in graphs]),
-        train_mask=jnp.concatenate([g.train_mask for g in graphs]))
+        train_mask=_map_concat([g.train_mask for g in graphs]))
 
 
 def unbatch(graph: DataGraphTuple) -> Sequence[DataGraphTuple]:

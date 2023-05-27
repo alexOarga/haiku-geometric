@@ -39,6 +39,7 @@ Alternatively you can install it from source::
 
    notebooks/1_quickstart
    notebooks/creating_dataset
+   notebooks/batch_support
    examples
 
 .. toctree::
