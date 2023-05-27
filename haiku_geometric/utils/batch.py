@@ -1,3 +1,5 @@
+# This was directly adapted from https://github.com/deepmind/jraph/blob/master/jraph/_src/utils.py#L424#L477
+# TODO: Future releases might drop support for DataGraphTuple and use directly jraph.
 from haiku_geometric.datasets.base import DataGraphTuple
 from typing import Sequence
 import jax.numpy as jnp
