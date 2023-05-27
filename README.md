@@ -113,6 +113,14 @@ Currently, Haiku Geometric includes the following GNN modules:
 | [PNAConv](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.PNAConv)               | Propagation Network layer from the [Principal Neighbourhood Aggregation for Graph Nets](https://arxiv.org/abs/2004.05718) paper.               |
 | [GPSLayer](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.GPSLayer)             | Graph Pooling layer from the [Recipe for a General, Powerful, Scalable Graph Transformer](https://arxiv.org/abs/2205.12454) paper.             |
 
+## Implemented positional encodings
+
+The following positional encodings are currently available:
+
+| Model                                                                                                                     | Description                                                                                                                                     |
+|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| [LaplacianEncoder](https://haiku-geometric.readthedocs.io/en/latest/modules/posenc.html#haiku_geometric.posenc.LaplacianEncoder)    | Laplacian positional encoding from the [Rethinking Graph Transformers with Spectral Attention](https://arxiv.org/pdf/2106.03893) paper.         |
+| [MagLaplacianEncoder](https://haiku-geometric.readthedocs.io/en/latest/modules/posenc.html#haiku_geometric.posenc.MagLaplacianEncoder)  | Magnetic Laplacian positional encoding from the [Transformers Meet Directed Graphs](https://arxiv.org/pdf/2302.00049) paper. |
 
 ## Issues
 
