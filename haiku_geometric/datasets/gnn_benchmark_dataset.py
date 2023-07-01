@@ -25,8 +25,8 @@ class GNNBenchmarkDataset(GraphDataset):
 
 
     **Attributes:**
-    
-    - **data** (List[DataGraphTuple]): List of graph tuples.
+
+        - **data** (List[DataGraphTuple]): List of graph tuples.
     """
     _root_url = 'https://data.pyg.org/datasets/benchmarking-gnns'
     _urls = {

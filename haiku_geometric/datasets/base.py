@@ -43,11 +43,12 @@ class GraphDataset():
     - y: If available, ground truth for each graph.
     """
     def __init__(self,
-            data: List[DataGraphTuple] = []
+            data: List[DataGraphTuple] = [],
+            y: Optional[jnp.ndarray] = None
         ):
         """"""
         self.data = data
-        self.y = None
+        self.y = y
         
     def __repr__(self) -> str: 
         return str(self.__dict__)
