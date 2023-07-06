@@ -29,7 +29,7 @@ def test_batch():
         train_mask=jnp.array([True, True, True, False]),
     )
 
-    new_data = batch([data1, data2])
+    new_data, batch_index = batch([data1, data2])
 
     assert jnp.all(new_data.nodes == jnp.array([[1, 2], [2, 3], [3, 4], [4, 5], [0, 0], [0, 0], [1, 1]]))
     assert jnp.all(new_data.edges == jnp.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8]))
@@ -41,6 +41,7 @@ def test_batch():
     assert jnp.all(new_data.position == None)
     assert jnp.all(new_data.y == jnp.array([0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0, 0]))
     assert jnp.all(new_data.train_mask == jnp.array([True, True, True, False, True, True, True, False]))
+    assert jnp.all(batch_index == jnp.array([0, 0, 0, 0, 1, 1, 1]))
 
     unbatch_graphs_list = unbatch(new_data)
     assert len(unbatch_graphs_list) == 2

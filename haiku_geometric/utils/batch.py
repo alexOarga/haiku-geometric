@@ -1,13 +1,12 @@
 # This was directly adapted from https://github.com/deepmind/jraph/blob/master/jraph/_src/utils.py#L424#L477
 # TODO: Future releases might drop support for DataGraphTuple and use directly jraph.
-from jax import Array
 from haiku_geometric.datasets.base import DataGraphTuple
 from typing import Sequence, Tuple
 import jax.numpy as jnp
 import jax.tree_util as tree
 
 
-def batch(graphs: Sequence[DataGraphTuple]) -> tuple[DataGraphTuple, Array]:
+def batch(graphs: Sequence[DataGraphTuple]) -> tuple[DataGraphTuple, jnp.ndarray]:
     r""" Batch a list of graphs into a single graph.
 
     Args:
@@ -15,7 +14,7 @@ def batch(graphs: Sequence[DataGraphTuple]) -> tuple[DataGraphTuple, Array]:
 
     Returns:
         - A single :class:`haiku_geometric.datasets.base.DataGraphTuple` containing the batched graphs.
-        - A `jax.numpy.Array` with indices indicating to which graph each node belongs to.
+        - A `jax.numpy.ndarray` with indices indicating to which graph each node belongs to.
     """
     offsets = jnp.cumsum(
       jnp.array([0] + [jnp.sum(g.n_node) for g in graphs[:-1]]))

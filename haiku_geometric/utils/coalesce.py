@@ -54,7 +54,7 @@ def coalesce(
         edge_attr = edge_attr[perm] if edge_attr is not None else None
 
     mask = idx[1:] > idx[:-1]
-    if jnp.alltrue(mask):
+    if jnp.all(mask):
         if edge_attr is not None:
             return edge_index[0], edge_index[1], edge_attr
         else:
