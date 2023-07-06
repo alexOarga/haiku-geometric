@@ -5,6 +5,7 @@ from .coalesce import coalesce
 from .undirected import to_undirected
 from .magnetic_laplacian import eigv_magnetic_laplacian
 from .batch import batch, unbatch
+from .scatter import scatter
 
 __all__ = [
     'batch',
@@ -15,6 +16,7 @@ __all__ = [
     'eigv_laplacian',
     'eigv_magnetic_laplacian',
     'random_walk',
+    'scatter',
     'to_undirected',
     'unbatch'
 ]
