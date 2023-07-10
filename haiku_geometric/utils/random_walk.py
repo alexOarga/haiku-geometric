@@ -97,7 +97,7 @@ def _random_walk(senders, receivers, walk_length, p, q, t):
         walk[j] = new_node
     return walk
 
-def _hk_random_walk(rowptr, col, start, walk_length, p, q, rng=jax.random.PRNGKey(0)):
+def _hk_random_walk(rowptr, col, start, walk_length, p, q):
     '''
     This is a Haiku transform-compatible version of the random walk function
     However, it needs further testing before integration

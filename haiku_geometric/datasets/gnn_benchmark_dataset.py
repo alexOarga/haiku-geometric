@@ -18,8 +18,7 @@ class GNNBenchmarkDataset(GraphDataset):
 
 
     Parameters:
-        name (str): Name of the GNN Benchmark dataset. Available datasets are: ``PATTERN``, ``CLUSTER``, ``MNIST``,
-        ``CIFAR10``, ``TSP`` and ``CSL``.
+        name (str): Name of the GNN Benchmark dataset. Available datasets are: ``PATTERN``, ``CLUSTER``, ``MNIST``, ``CIFAR10``, ``TSP`` and ``CSL``.
         root (str): Root directory where the dataset should be saved.
         split (str): Split of the dataset. Split can take values: ``train``, ``valid`` and ``test``.
 

@@ -1,10 +1,7 @@
-from typing import Union
 import jax.numpy as jnp
-
-
 from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, List
 ArrayTree = Union[jnp.ndarray, Iterable['ArrayTree'], Mapping[Any, 'ArrayTree']]
-import jax.numpy as jnp
+
 
 class DataGraphTuple(NamedTuple):
     r""" Container class containing an individual graph data.

@@ -40,21 +40,27 @@ def topk_indexes(score, ratio, batch):
 
 
 class TopKPooling(hk.Module):
-    r"""
+    r""" Topk pooling operator from the `"Graph U-Nets"
+    <https://arxiv.org/abs/1905.05178>`_ paper.
+
+    Args:
+        in_channels (int): Dimension of input node features.
+        ratio: (Union[int, float], optinal): Ratio of nodes to keep.
+            If int, the number of nodes to keep.
+            (default: :obj:`0.5`)
+        multiplier (float, optional): Multiplier to scale the features after pooling.
+            (default: :obj:`1.`)
     """
     def __init__(self,
                  in_channels: int,
                  ratio: Union[int, float] = 0.5,
-                 min_score: Optional[float] = None,
                  multiplier: float = 1.,
                  ):
-        r"""Topk pooling operator."""
         #w_init = hk.initializers.TruncatedNormal(1. / jnp.sqrt(j)) # TODO: initialize with 1/sqrt(j)
         super().__init__()
         p_init = hk.initializers.TruncatedNormal()
         self.p = hk.get_parameter("p", shape=[in_channels,], init=p_init)
         self.ratio = ratio
-        self.min_score = min_score
         self.multiplier = multiplier
 
 
@@ -91,8 +97,8 @@ class TopKPooling(hk.Module):
 
         # pool new graphs by creating batches
         if batch is not None:
-            batch = jnp.arange(perm.shape[0])
-            batch = scatter(batch, 0, cluster_index, batch[perm])
+            out = jnp.arange(perm.shape[0])
+            batch = scatter(out, 0, cluster_index, batch[perm])
 
         return x, senders, receivers, edge_attr, batch
 

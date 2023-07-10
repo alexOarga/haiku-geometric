@@ -4,7 +4,7 @@ import glob
 import jax.numpy as jnp
 from haiku_geometric.datasets.base import DataGraphTuple, GraphDataset
 from haiku_geometric.datasets.utils import download_url, extract_zip
-from haiku_geometric.utils import unbatch
+import haiku_geometric as hkg
 
 
 class TUDataset(GraphDataset):
@@ -177,5 +177,5 @@ def read_tu_dataset(folder, dataset):
         train_mask=None,
     )
 
-    graphs = unbatch(graph)
+    graphs = hkg.utils.unbatch(graph)
     return graphs, y
