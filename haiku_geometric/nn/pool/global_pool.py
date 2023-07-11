@@ -20,6 +20,7 @@ def global_add_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
         output array will have shape :obj:`[batch_size, *]`, where :obj:`*` denotes the remaining dimensions.
 
     """
+    dim = -1
     if batch is None:
         return jnp.sum(x, axis=dim, keepdims=True)
     return jax.ops.segment_sum(x, batch)

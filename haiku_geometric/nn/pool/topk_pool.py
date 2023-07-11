@@ -24,12 +24,12 @@ def topk_indexes(score, ratio, batch):
     index = tuple(jnp.array(index).T)
     # TODO: compare performance with indexing a flat array
     score_batch_matrix = score_batch_matrix.at[index].set(score, unique_indices=True)
-    perm = jnp.argsort(score_batch_matrix, axis=-1)[::-1]  # trick for descending order
+    perm = jnp.argsort(-score_batch_matrix, axis=-1)  # trick for descending order
     if ratio >= 1:
         k = jnp.full((num_batch,), int(ratio))
         k = jnp.minimum(k, nodes_per_batch)
     else:
-        k = jnp.floor(ratio * nodes_per_batch).astype(jnp.int32)
+        k = jnp.ceil(ratio * nodes_per_batch).astype(jnp.int32)
 
     perm = perm + cum_num_nodes[:, None]
     index = [(b, i) for b in range(num_batch) for i in range(k[b])]
