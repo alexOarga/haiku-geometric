@@ -1,8 +1,6 @@
 import jax
 import jax.numpy as jnp
 
-from haiku_geometric import scatter
-
 
 def global_add_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
     r"""Returns the sum of all node features of the input graph:
