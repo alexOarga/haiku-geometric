@@ -2,7 +2,7 @@ import jax
 import jax.numpy as jnp
 
 
-def global_add_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
+def global_add_pool(x: jnp.ndarray, batch: jnp.ndarray=None) -> jnp.ndarray:
     r"""Returns the sum of all node features of the input graph:
 
     .. math::
@@ -18,13 +18,13 @@ def global_add_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
         output array will have shape :obj:`[batch_size, *]`, where :obj:`*` denotes the remaining dimensions.
 
     """
-    dim = -1
+    dim = -1 if x.ndim == 1 else -2
     if batch is None:
         return jnp.sum(x, axis=dim, keepdims=True)
     return jax.ops.segment_sum(x, batch)
 
 
-def global_mean_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
+def global_mean_pool(x: jnp.ndarray, batch: jnp.ndarray=None) -> jnp.ndarray:
     r"""Returns the average of all node features of the input graph:
 
     .. math::
@@ -40,14 +40,15 @@ def global_mean_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
         output array will have shape :obj:`[batch_size, *]`, where :obj:`*` denotes the remaining dimensions.
 
     """
+    dim = -1 if x.ndim == 1 else -2
     if batch is None:
-        return jnp.mean(x, axis=-2, keepdims=True)
+        return jnp.mean(x, axis=dim, keepdims=True)
     sum = jax.ops.segment_sum(x, batch)
     count = jax.ops.segment_sum(jnp.ones_like(x), batch)
     return sum / jnp.maximum(count, 1)
 
 
-def global_max_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
+def global_max_pool(x: jnp.ndarray, batch: jnp.ndarray=None) -> jnp.ndarray:
     r"""Returns the maximum across the input features.
     The maximum is performed individually over each channel.
 
@@ -64,6 +65,7 @@ def global_max_pool(x: jnp.ndarray, batch: jnp.ndarray) -> jnp.ndarray:
         output array will have shape :obj:`[batch_size, *]`, where :obj:`*` denotes the remaining dimensions.
 
     """
+    dim = -1 if x.ndim == 1 else -2
     if batch is None:
-        return jnp.max(x, axis=-2, keepdims=True)
+        return jnp.max(x, axis=dim, keepdims=True)
     return jax.ops.segment_max(x, batch)
