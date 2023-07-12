@@ -13,7 +13,7 @@ def global_add_pool(x: jnp.ndarray, batch: jnp.ndarray=None) -> jnp.ndarray:
         batch (jax.numpy.ndarray, optional): Batch vector with indices that indicate to which graph each node belongs.
             (default: :obj:`None`).
 
-    Returns;
+    Returns:
         (jax.numpy.ndarray): Array with the sum of the nodes features. If :obj:`batch` is not :obj:`None`, the
         output array will have shape :obj:`[batch_size, *]`, where :obj:`*` denotes the remaining dimensions.
 
@@ -35,7 +35,7 @@ def global_mean_pool(x: jnp.ndarray, batch: jnp.ndarray=None) -> jnp.ndarray:
         batch (jax.numpy.ndarray, optional): Batch vector with indices that indicate to which graph each node belongs.
             (default: :obj:`None`).
 
-    Returns;
+    Returns:
         (jax.numpy.ndarray): Array with the average of the nodes features. If :obj:`batch` is not :obj:`None`, the
         output array will have shape :obj:`[batch_size, *]`, where :obj:`*` denotes the remaining dimensions.
 
@@ -60,7 +60,7 @@ def global_max_pool(x: jnp.ndarray, batch: jnp.ndarray=None) -> jnp.ndarray:
         batch (jax.numpy.ndarray, optional): Batch vector with indices that indicate to which graph each node belongs.
             (default: :obj:`None`).
 
-    Returns;
+    Returns:
         (jax.numpy.ndarray): Array with the average of the nodes features. If :obj:`batch` is not :obj:`None`, the
         output array will have shape :obj:`[batch_size, *]`, where :obj:`*` denotes the remaining dimensions.
 

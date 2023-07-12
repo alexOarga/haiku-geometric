@@ -48,7 +48,7 @@ def add_self_loops(
             #TODO: Implement scatter-like function or use _segment_update from jax.ops
             raise NotImplementedError("add_self_loops does not yet support string fill values.")
         else:
-            raise AttributeError("Provided 'fill_value' values is not supported.")
+            raise AttributeError("Provided 'fill_value' values are not supported.")
 
         edge_attr = jnp.concatenate((edge_attr, loop_attr), axis=0)
 

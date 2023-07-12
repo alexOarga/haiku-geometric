@@ -111,7 +111,8 @@ Currently, Haiku Geometric includes the following GNN modules:
 | [GatedGraphConv](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.GatedGraphConv) | Graph convolution layer from the [Gated Graph Sequence Neural Networks](https://arxiv.org/abs/1511.05493) paper.                               |
 | [EdgeConv](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.EdgeConv)             | Edge convolution layer from the [Dynamic Graph CNN for Learning on Point Clouds](https://arxiv.org/abs/1801.07829) paper.                      |
 | [PNAConv](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.PNAConv)               | Propagation Network layer from the [Principal Neighbourhood Aggregation for Graph Nets](https://arxiv.org/abs/2004.05718) paper.               |
-| [GPSLayer](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.GPSLayer)             | Graph Pooling layer from the [Recipe for a General, Powerful, Scalable Graph Transformer](https://arxiv.org/abs/2205.12454) paper.             |
+| [MetaLayer](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.MetaLayer)           | Meta layer from the [Relational Inductive Biases, Deep Learning, and Graph Networks](https://arxiv.org/abs/1806.01261) paper.                  |
+| [GPSLayer](https://haiku-geometric.readthedocs.io/en/latest/modules/nn.html#haiku_geometric.nn.conv.GPSLayer)             | Graph layer from the [Recipe for a General, Powerful, Scalable Graph Transformer](https://arxiv.org/abs/2205.12454) paper.                     |
 
 ## Implemented positional encodings
 

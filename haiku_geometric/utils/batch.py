@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import jax.tree_util as tree
 
 
-def batch(graphs: Sequence[DataGraphTuple]) -> tuple[DataGraphTuple, jnp.ndarray]:
+def batch(graphs: Sequence[DataGraphTuple]) -> Tuple[DataGraphTuple, jnp.ndarray]:
     r""" Batch a list of graphs into a single graph.
 
     Args:

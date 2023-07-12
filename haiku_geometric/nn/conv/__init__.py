@@ -9,6 +9,7 @@ from .gated_graph_conv import GatedGraphConv
 from .pna_conv import PNAConv
 from .gps_layer import GPSLayer
 from .edge_conv import EdgeConv
+from .meta_layer import MetaLayer
 
 
 __all__ = [
@@ -23,6 +24,7 @@ __all__ = [
     'PNAConv',
     'GPSLayer',
     'EdgeConv',
+    'MetaLayer',
 ]
 
 classes = __all__
