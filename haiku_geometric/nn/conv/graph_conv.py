@@ -13,7 +13,7 @@ class GraphConv(hk.Module):
     <https://arxiv.org/abs/1810.02244>`_ paper
 
     The node features are computed as follows:
-    
+
     .. math::
         \mathbf{{h}}_{u}^{k}=\mathbf{W}_1 \cdot \mathbf{{h}}_{u}^{k-1} + \mathbf{W}_2 \cdot \text{AGGREGATE}(\{e_{u, v} \cdot \mathbf{{h}}_{v}^{k-1}, \forall v \in \mathcal{N}(u)\})
 
@@ -48,25 +48,19 @@ class GraphConv(hk.Module):
                  senders: jnp.ndarray = None,
                  receivers: jnp.ndarray = None,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
+                 num_nodes: int = None
                  ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
         """"""
-        nodes, edges, receivers, senders = \
-            validate_input(nodes, senders, receivers, edges, graph)
 
         messages = nodes[senders]
         if edges is not None:
             messages = messages * edges
 
-        total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
+        # total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
         out = tree.tree_map(lambda x: self.aggr(messages, receivers,
-                                                total_num_nodes), nodes)
+                                                num_segments=num_nodes), nodes)
 
         out = self.linear(out)
         out = out + self.linear_root(nodes)
 
-        if graph is not None:
-            graph = graph._replace(nodes=out)
-            return graph
-        else:
-            return out
+        return out

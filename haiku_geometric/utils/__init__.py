@@ -5,7 +5,9 @@ from .coalesce import coalesce
 from .undirected import to_undirected
 from .magnetic_laplacian import eigv_magnetic_laplacian
 from .batch import batch, unbatch
+from .pad import pad_graph
 from .scatter import scatter
+
 
 __all__ = [
     'batch',
@@ -15,6 +17,7 @@ __all__ = [
     'get_laplacian_matrix',
     'eigv_laplacian',
     'eigv_magnetic_laplacian',
+    'pad_graph',
     'random_walk',
     'scatter',
     'to_undirected',

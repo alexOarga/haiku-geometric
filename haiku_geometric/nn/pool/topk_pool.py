@@ -41,7 +41,8 @@ def topk_indexes(score, ratio, batch):
 
 class TopKPooling(hk.Module):
     r""" Topk pooling operator from the `"Graph U-Nets"
-    <https://arxiv.org/abs/1905.05178>`_ paper.
+    <https://arxiv.org/abs/1905.05178>`_ and "Towards Sparse Hierarchical Graph Classifiers"
+     <https://arxiv.org/abs/1811.01287>`_ paper.
 
     Args:
         in_channels (int): Dimension of input node features.
