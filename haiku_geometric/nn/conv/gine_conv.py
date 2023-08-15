@@ -52,33 +52,27 @@ class GINEConv(hk.Module):
             self.eps = eps
 
     def __call__(self,
-                 nodes: jnp.ndarray = None,
-                 senders: jnp.ndarray = None,
-                 receivers: jnp.ndarray = None,
-                 edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 nodes: jnp.ndarray,
+                 senders: jnp.ndarray,
+                 receivers: jnp.ndarray,
+                 edges: jnp.ndarray,
+                 num_nodes: Optional[int] = None,
+                 ) -> jnp.ndarray:
         """"""
-        nodes, edges, receivers, senders = \
-            validate_input(nodes, senders, receivers, edges, graph)
 
         in_channels = nodes.shape[1]
         if self.edge_dim is not None:
             linear = hk.Linear(in_channels, with_bias=False)
-
-        if self.edge_dim is not None:
             edges = linear(edges)
+
         messages = nodes[senders] + edges
 
-        total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
-        h = tree.tree_map(lambda x: self.aggr(messages, receivers,
-                                              total_num_nodes), nodes)
+        if num_nodes is None:
+            num_nodes = tree.tree_leaves(nodes)[0].shape[0]
+
+        h = self.aggr(messages, receivers, num_nodes)
 
         h = h + ((1 + self.eps) * nodes)
         out = self.nn(h)
 
-        if graph is not None:
-            graph = graph._replace(nodes=out)
-            return graph
-        else:
-            return out
+        return out

@@ -102,22 +102,22 @@ class GATConv(hk.Module):
             init=init)
 
     def __call__(self,
-                 nodes: jnp.ndarray = None,
-                 senders: jnp.ndarray = None,
-                 receivers: jnp.ndarray = None,
+                 in_nodes_features: jnp.ndarray,
+                 senders: jnp.ndarray,
+                 receivers: jnp.ndarray,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None,
+                 num_nodes: Optional[int] = None,
                  training: bool = False
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 ) -> jnp.ndarray:
         """"""
-        in_nodes_features, edges, receivers, senders = \
-            validate_input(nodes, senders, receivers, edges, graph)
 
         C = self.out_channels
         H = self.heads
 
+
         try:
-            sum_n_node = in_nodes_features.shape[0]
+            if num_nodes is None:
+                num_nodes = tree.tree_leaves(in_nodes_features)[0].shape[0]
         except IndexError:
             raise IndexError('GATConv requires node features')
 
@@ -128,14 +128,13 @@ class GATConv(hk.Module):
             nodes_features_proj = hk.dropout(
                 jax.random.PRNGKey(42), self.dropout_nodes, nodes_features_proj)
 
-        total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
         if self.add_self_loops:
             # We add self edges to the senders and receivers so that each node
             # includes itself in aggregation.
             #   receivers (or senders) shape = (|edges|, 1)
             senders, receivers, edges = add_self_loops(senders, receivers, edges,
                                                 fill_value=1.0, # TODO: use 'mean' as a fill value
-                                                num_nodes=total_num_nodes)
+                                                num_nodes=num_nodes)
 
         # shape: (N, H)
         scores_source = jnp.sum(nodes_features_proj * self.scoring_fn_source, axis=-1)
@@ -152,7 +151,7 @@ class GATConv(hk.Module):
             negative_slope=self.negative_slope)
 
         # shape: (|edges|, 1)
-        attentions_per_edge = jraph.segment_softmax(scores_per_edge, receivers, num_segments=sum_n_node)
+        attentions_per_edge = jraph.segment_softmax(scores_per_edge, receivers, num_segments=num_nodes)
 
         if training:
             attentions_per_edge = hk.dropout(
@@ -162,18 +161,14 @@ class GATConv(hk.Module):
         nodes_features_proj_lifted_weighted = nodes_features_proj_lifted * jnp.expand_dims(attentions_per_edge, axis=-1)
 
         # shape: (N, H, C)
-        out_nodes_features = jax.ops.segment_sum(nodes_features_proj_lifted_weighted, receivers, num_segments=sum_n_node)
+        out_nodes_features = jax.ops.segment_sum(nodes_features_proj_lifted_weighted, receivers, num_segments=num_nodes)
 
         if self.concat:
             out_nodes_features = jnp.reshape(out_nodes_features, (-1, H * C))
         else:
             out_nodes_features = jnp.mean(out_nodes_features, axis=1)
 
-        if graph is not None:
-            graph = graph._replace(nodes=out_nodes_features)
-            return graph
-        else:
-            return out_nodes_features
+        return out_nodes_features
 
     def lift(self, scores_source, scores_target, nodes_features_matrix_proj, senders, receivers):
         src_nodes_index = senders

@@ -24,7 +24,6 @@ def fill_diagonal(a, val):
   return a.at[..., i, j].set(val)
 
 
-@partial(jax.jit, static_argnums=(2,))
 def batch_softmax(x: jnp.ndarray,
                 batch: jnp.ndarray,
                 num_segments):

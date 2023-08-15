@@ -79,16 +79,14 @@ class GCNConv(hk.Module):
         self.aggr = aggregation(aggr)
 
     def __call__(self,
-                 nodes: jnp.ndarray = None,
-                 senders: jnp.ndarray = None,
-                 receivers: jnp.ndarray = None,
+                 nodes: jnp.ndarray,
+                 senders: jnp.ndarray,
+                 receivers: jnp.ndarray,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 num_nodes: Optional[int] = None,
+                 ) -> jnp.ndarray:
         """"""
         # forward pass
-        nodes, edges, receivers, senders = \
-            validate_input(nodes, senders, receivers, edges, graph)
 
         nodes = self.linear(nodes)
 
@@ -99,14 +97,16 @@ class GCNConv(hk.Module):
             num_edges = receivers.shape[0]
             edges = jnp.ones((num_edges, 1))
 
-        total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
+        if num_nodes is None:
+            num_nodes = tree.tree_leaves(nodes)[0].shape[0]
+
         if self.add_self_loops:
-            conv_receivers = jnp.concatenate((receivers, jnp.arange(total_num_nodes)),
+            conv_receivers = jnp.concatenate((receivers, jnp.arange(num_nodes)),
                                              axis=0)
-            conv_senders = jnp.concatenate((senders, jnp.arange(total_num_nodes)),
+            conv_senders = jnp.concatenate((senders, jnp.arange(num_nodes)),
                                            axis=0)
             fill_value = 2. if self.improved else 1.
-            fill_self_edges = jnp.ones((total_num_nodes, 1)) * fill_value
+            fill_self_edges = jnp.ones((num_nodes, 1)) * fill_value
             edges = jnp.concatenate((edges, fill_self_edges),
                                     axis=0)
         else:
@@ -121,7 +121,7 @@ class GCNConv(hk.Module):
                 d = edges + jnp.ones_like(conv_senders).reshape(-1, 1)
                 d = d.reshape(-1)
                 count_edges = lambda x: segment_sum(
-                    d, x, total_num_nodes)
+                    d, x, num_nodes)
                 sender_degree = count_edges(conv_senders)
                 receiver_degree = count_edges(conv_receivers)
 
@@ -136,10 +136,6 @@ class GCNConv(hk.Module):
         messages = nodes[conv_senders].transpose()
         messages = jnp.multiply(messages, jnp.squeeze(edges)).transpose()
         nodes = self.aggr(messages, conv_receivers,
-                          total_num_nodes)
+                          num_nodes)
 
-        if graph is not None:
-            graph = graph._replace(nodes=nodes)
-            return graph
-        else:
-            return nodes
+        return nodes

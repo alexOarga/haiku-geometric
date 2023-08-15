@@ -73,14 +73,14 @@ class PNAConv(hk.Module):
         self.act = act
 
     def __call__(self,
-                 nodes: jnp.ndarray = None,
-                 senders: jnp.ndarray = None,
-                 receivers: jnp.ndarray = None,
+                 nodes: jnp.ndarray,
+                 senders: jnp.ndarray,
+                 receivers: jnp.ndarray,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 num_nodes: Optional[int] = None,
+                 ) -> jnp.ndarray:
         """"""
-        
+
         # Initialize modules
         in_channels = nodes.shape[-1]
         self.F_in = in_channels // self.towers if self.divide_input else in_channels
@@ -100,7 +100,8 @@ class PNAConv(hk.Module):
                 modules += [hk.Linear(self.F_in)]
             self.pre_nns.append(hk.Sequential(modules))
 
-            in_channels = (len(self.aggregators) * len(self.scalers) + 1) * self.F_in
+            # No need to compute in channels
+            #in_channels = (len(self.aggregators) * len(self.scalers) + 1) * self.F_in
             modules = [hk.Linear(self.F_out)]
             for _ in range(self.post_layers - 1):
                 modules += [self.act]
@@ -108,6 +109,9 @@ class PNAConv(hk.Module):
             self.post_nns.append(hk.Sequential(modules))
         
         # Forward pass
+        if num_nodes is None:
+            num_nodes = tree.tree_leaves(nodes)[0].shape[0]
+
         if self.divide_input:
             nodes = nodes.reshape(-1, self.towers, self.F_in)
         else:
@@ -121,7 +125,7 @@ class PNAConv(hk.Module):
             edges = jnp.tile(edges, (1, self.towers, 1))
             x_i = nodes[senders]
             x_j = nodes[receivers]
-            h = jnp.concatenate([x_i, x_j], axis=-1)
+            h = jnp.concatenate([x_i, x_j, edges], axis=-1)
         else:
             x_i = nodes[senders]
             x_j = nodes[receivers]
@@ -131,7 +135,7 @@ class PNAConv(hk.Module):
         msg = jnp.stack(hs, axis=1)
             
         # Propagate
-        out = self.aggr(nodes[senders], receivers)
+        out = self.aggr(msg, receivers, num_nodes)
         
         out = jnp.concatenate((nodes, out), axis=-1)
         outs = [nn(out[:, i]) for i, nn in enumerate(self.post_nns)]

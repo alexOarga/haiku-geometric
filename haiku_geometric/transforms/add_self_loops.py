@@ -29,7 +29,7 @@ def add_self_loops(
 
     loop_index = jnp.arange(N)
     loop_index = jnp.expand_dims(loop_index, axis=0)
-    loop_index = jnp.tile(loop_index, jnp.array([2, 1]))
+    loop_index = jnp.tile(loop_index, (2, 1))
 
     if edge_attr is not None:
         if fill_value is None:

@@ -44,11 +44,11 @@ class DegreeScalerAggregation(Aggregation):
             self.aggr = aggr
         
         self.scaler = [scaler] if isinstance(scaler, str) else scaler
-        N = int(jnp.sum(deg))
+        N = jnp.sum(deg).astype(int)
         bin_degree = jnp.arange(deg.size)
         
-        self.init_avg_deg_lin = float((bin_degree * deg).sum()) / N
-        self.init_avg_deg_log = float((jnp.log(bin_degree + 1) * deg).sum()) / N
+        self.init_avg_deg_lin = (bin_degree * deg).sum().astype(float) / N
+        self.init_avg_deg_log = ((jnp.log(bin_degree + 1) * deg).sum()).astype(float) / N
         
         if train_norm:
             self.avg_deg_lin = hk.get_parameter("avg_deg_lin", shape=[1, 1], init=hk.initializers.RandomNormal())

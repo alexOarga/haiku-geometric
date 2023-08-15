@@ -4,8 +4,6 @@ from jax import vmap
 from functools import partial
 
 
-# TODO: swapaxes depends on dim parameter, which makes this function partially jit-able
-@partial(jax.jit, static_argnums=(1, 4))
 def _scatter(input, dim, index, src, reduce):
     dnums = jax.lax.ScatterDimensionNumbers(update_window_dims=(), inserted_window_dims=(0,),
                                             scatter_dims_to_operand_dims=(0,))

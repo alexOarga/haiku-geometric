@@ -21,8 +21,8 @@ def test_graph_conv(bias):
     graph = ToyGraphDataset().data[0]
     nodes, edges, receivers, senders = graph.nodes, graph.edges, graph.receivers, graph.senders
     network = hk.without_apply_rng(hk.transform(forward))
-    params_n = network.init(jax.random.PRNGKey(42), nodes, receivers, senders, **args)
-    out = network.apply(params_n, nodes, receivers, senders, **args)
+    params_n = network.init(jax.random.PRNGKey(42), nodes, senders, receivers, **args)
+    out = network.apply(params_n, nodes, senders, receivers, **args)
     assert out.shape == (4, 8)
 
     # Test without edge features
@@ -31,6 +31,6 @@ def test_graph_conv(bias):
     graph = graph._replace(n_edge=None)
     nodes, edges, receivers, senders = graph.nodes, graph.edges, graph.receivers, graph.senders
     network = hk.without_apply_rng(hk.transform(forward))
-    params_n = network.init(jax.random.PRNGKey(42), nodes, receivers, senders, **args)
-    out = network.apply(params_n, nodes, receivers, senders, **args)
+    params_n = network.init(jax.random.PRNGKey(42), nodes, senders, receivers, **args)
+    out = network.apply(params_n, nodes, senders, receivers, **args)
     assert out.shape == (4, 8)

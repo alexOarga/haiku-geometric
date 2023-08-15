@@ -21,8 +21,8 @@ def test_gated_graph_conv(num_layers):
     graph = ToyGraphDataset().data[0]
     nodes, edges, receivers, senders = graph.nodes, graph.edges, graph.receivers, graph.senders
     network = hk.without_apply_rng(hk.transform(forward))
-    params_n = network.init(jax.random.PRNGKey(42), nodes, receivers, senders, edges, **args)
-    out = network.apply(params_n, nodes, receivers, senders, edges, **args)
+    params_n = network.init(jax.random.PRNGKey(42), nodes, senders, receivers, edges, **args)
+    out = network.apply(params_n, nodes, senders, receivers, edges, **args)
     assert out.shape == (4, 8)
 
     # Test without edge features
@@ -31,6 +31,6 @@ def test_gated_graph_conv(num_layers):
     graph = graph._replace(edges=None)
     graph = graph._replace(n_edge=None)
     network = hk.without_apply_rng(hk.transform(forward))
-    params_n = network.init(jax.random.PRNGKey(42), nodes, receivers, senders, edges, **args)
-    out = network.apply(params_n, nodes, receivers, senders, edges, **args)
+    params_n = network.init(jax.random.PRNGKey(42), nodes, senders, receivers, edges, **args)
+    out = network.apply(params_n, nodes, senders, receivers, edges, **args)
     assert out.shape == (4, 8)

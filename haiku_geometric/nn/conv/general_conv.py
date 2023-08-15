@@ -128,23 +128,22 @@ class GeneralConv(hk.Module):
                 raise ValueError("Unknown attention type: {self.attention_type}.")
 
     def __call__(self,
-                 nodes: jnp.ndarray = None,
-                 senders: jnp.ndarray = None,
-                 receivers: jnp.ndarray = None,
+                 nodes: jnp.ndarray,
+                 senders: jnp.ndarray,
+                 receivers: jnp.ndarray,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 num_nodes: Optional[int] = None,
+                 ) -> jnp.ndarray:
         """"""
-        nodes, edges, receivers, senders = \
-            validate_input(nodes, senders, receivers, edges, graph)
 
         C = self.out_channels
         H = self.heads
 
         try:
-            sum_n_node = nodes.shape[0]
+            if num_nodes is None:
+                num_nodes = tree.tree_leaves(nodes)[0].shape[0]
         except IndexError:
-            raise IndexError('GATConv requires node features')
+            raise IndexError('GeneralConv requires node features')
 
         total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
 
@@ -192,7 +191,7 @@ class GeneralConv(hk.Module):
             # Compute the attention softmax weights on the entire tree.
             #  att_weights.shape = (|edges|, H)
             att_weights = jraph.segment_softmax(
-                att_softmax_logits, segment_ids=receivers, num_segments=sum_n_node)
+                att_softmax_logits, segment_ids=receivers, num_segments=num_nodes)
 
             # sent_attributes.shape = (|edges|, H, C)
             x = jnp.reshape(x, (-1, H, C))
@@ -207,7 +206,7 @@ class GeneralConv(hk.Module):
             messages = x
 
         # Aggregate messages to nodes.
-        new_nodes = self.aggr(messages, receivers, num_segments=sum_n_node)
+        new_nodes = self.aggr(messages, receivers, num_segments=num_nodes)
 
         # Aggregate heads
         new_nodes = jnp.mean(new_nodes, axis=1)
@@ -217,8 +216,4 @@ class GeneralConv(hk.Module):
         if self.l2_normalize:
             new_nodes /= jnp.linalg.norm(new_nodes, ord=2, axis=-1, keepdims=True)
 
-        if graph is not None:
-            graph = graph._replace(nodes=new_nodes)
-            return graph
-        else:
-            return new_nodes
+        return new_nodes

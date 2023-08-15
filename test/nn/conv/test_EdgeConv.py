@@ -16,6 +16,6 @@ def test_edge_conv():
     graph = ToyGraphDataset().data[0]
     nodes, edges, receivers, senders = graph.nodes, graph.edges, graph.receivers, graph.senders
     network = hk.without_apply_rng(hk.transform(forward))
-    params_n = network.init(jax.random.PRNGKey(42), nodes, receivers, senders)
-    out = network.apply(params_n, nodes, receivers, senders)
+    params_n = network.init(jax.random.PRNGKey(42), nodes, senders, receivers)
+    out = network.apply(params_n, nodes, senders, receivers)
     assert out.shape == (4, 8)

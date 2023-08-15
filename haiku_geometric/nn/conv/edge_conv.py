@@ -34,25 +34,19 @@ class EdgeConv(hk.Module):
         self.nn = nn
         
     def __call__(self,
-                 nodes: jnp.ndarray = None,
-                 senders: jnp.ndarray = None,
-                 receivers: jnp.ndarray = None,
+                 nodes: jnp.ndarray,
+                 senders: jnp.ndarray,
+                 receivers: jnp.ndarray,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 num_nodes: int = None
+                 ) -> jnp.ndarray:
         """"""
-        nodes, edges, receivers, senders = \
-            validate_input(nodes, senders, receivers, edges, graph)
 
         h_senders = nodes[senders]
         h_receivers = nodes[receivers]
         h = jnp.concatenate((h_senders, h_receivers - h_senders), axis=-1)
         messages = self.nn(h)
-        total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
-        out = self.aggr(messages, receivers, total_num_nodes)
-        
-        if graph is not None:
-            graph = graph._replace(nodes=out)
-            return graph
-        else:
-            return out
+        if num_nodes is None:
+            num_nodes = tree.tree_leaves(nodes)[0].shape[0]
+        out = self.aggr(messages, receivers, num_nodes)
+        return out

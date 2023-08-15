@@ -18,7 +18,7 @@ def test_edge_conv():
             super().__init__()
             self.mlp = hk.Sequential([hk.Linear(dim), jax.nn.relu, hk.Linear(dim)])
 
-        def __call__(self, senders_features, receivers_features, edges_features, globals, batch):
+        def __call__(self, senders_features, receivers_features, edges_features, globals, batch, num_nodes=None):
             h = jnp.concatenate([senders_features, receivers_features, edges_features], axis=-1)
             return self.mlp(h)
 
@@ -28,7 +28,7 @@ def test_edge_conv():
             self.aggr = aggregation('mean')
             self.mlp = hk.Sequential([hk.Linear(dim), jax.nn.relu, hk.Linear(dim)])
 
-        def __call__(self, nodes, senders, receivers, edge_attr, globals, batch):
+        def __call__(self, nodes, senders, receivers, edge_attr, globals, batch, num_nodes=None):
             h = jnp.concatenate([nodes[senders], edge_attr], axis=1)
             messages = self.mlp(h)
             total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
@@ -39,17 +39,17 @@ def test_edge_conv():
             super().__init__()
             self.mlp = hk.Sequential([hk.Linear(dim), jax.nn.relu, hk.Linear(dim)])
 
-        def __call__(self, nodes, senders, receivers, edge_attr, globals, batch):
+        def __call__(self, nodes, senders, receivers, edge_attr, globals, batch, num_nodes=None):
             num_batches = jnp.max(batch) + 1
             globals = globals.reshape((num_batches, -1))
             return self.mlp(globals)
 
-    def forward(nodes, receivers, senders, edges, globals, batch_idx):
+    def forward(nodes, senders, receivers, edges, globals, batch_idx):
         edge_model = EdgeModel(16)
         node_model = NodeModel(16)
         global_model = GlobalModel(16)
         module = MetaLayer(edge_model, node_model, global_model)
-        return module(nodes, receivers, senders, edges, globals, batch_idx)
+        return module(nodes, senders, receivers, edges, globals, batch_idx)
 
     # Test with edge features
     graph1 = ToyGraphDataset().data[0]
@@ -58,8 +58,8 @@ def test_edge_conv():
     nodes, edges, receivers, senders = graph.nodes, graph.edges, graph.receivers, graph.senders
     globals = jnp.ones((2, 4))  # just a dummy global feature
     network = hk.without_apply_rng(hk.transform(forward))
-    params_n = network.init(jax.random.PRNGKey(42), nodes, receivers, senders, edges, globals, batch_idx)
-    out_nodes, out_edges, out_globals = network.apply(params_n, nodes, receivers, senders, edges, globals, batch_idx)
+    params_n = network.init(jax.random.PRNGKey(42), nodes, senders, receivers, edges, globals, batch_idx)
+    out_nodes, out_edges, out_globals = network.apply(params_n, nodes, senders, receivers, edges, globals, batch_idx)
     assert out_nodes.shape == (8, 16)
     assert out_edges.shape == (10, 16)
     assert out_globals.shape == (2, 16)

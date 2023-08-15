@@ -94,7 +94,7 @@ class MetaLayer(hk.Module):
                 super().__init__()
                 self.mlp = hk.Sequential([hk.Linear(...), jax.nn.relu, hk.Linear(...)])
 
-            def __call__(self, senders_features, receivers_features, edges_features, globals, batch):
+            def __call__(self, senders_features, receivers_features, edges_features, globals, batch, num_nodes=None):
                 h = jnp.concatenate([senders_features, receivers_features, edges_features], axis=-1)
                 return self.mlp(h)
 
@@ -104,7 +104,7 @@ class MetaLayer(hk.Module):
                 self.aggr = aggregation('mean')
                 self.mlp = hk.Sequential([hk.Linear(...), jax.nn.relu, hk.Linear(...)])
 
-            def __call__(self, nodes, senders, receivers, edge_attr, globals, batch):
+            def __call__(self, nodes, senders, receivers, edge_attr, globals, batch, num_nodes=None):
                 h = jnp.concatenate([nodes[senders], edge_attr], axis=1)
                 messages = self.mlp(h)
                 total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
@@ -115,7 +115,7 @@ class MetaLayer(hk.Module):
                 super().__init__()
                 self.mlp = hk.Sequential([hk.Linear(...), jax.nn.relu, hk.Linear(...)])
 
-            def __call__(self, nodes, senders, receivers, edge_attr, globals, batch):
+            def __call__(self, nodes, senders, receivers, edge_attr, globals, batch, num_nodes=None):
                 return self.mlp(globals)
     """
 
@@ -138,14 +138,15 @@ class MetaLayer(hk.Module):
                  edge_attr: Optional[jnp.ndarray] = None,
                  globals: Optional[jnp.ndarray] = None,
                  batch: Optional[jnp.ndarray] = None,
+                 num_nodes: Optional[int] = None,
         ) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
         """"""
         if self.edge_model is not None:
-            edge_attr = self.edge_model(nodes[senders], nodes[receivers], edge_attr, globals, batch)
+            edge_attr = self.edge_model(nodes[senders], nodes[receivers], edge_attr, globals, batch, num_nodes=num_nodes)
         if self.node_model is not None:
-            nodes = self.node_model(nodes, senders, receivers, edge_attr, globals, batch)
+            nodes = self.node_model(nodes, senders, receivers, edge_attr, globals, batch, num_nodes=num_nodes)
         if self.global_model is not None:
-            globals = self.global_model(nodes, senders, receivers, edge_attr, globals, batch)
+            globals = self.global_model(nodes, senders, receivers, edge_attr, globals, batch, num_nodes=num_nodes)
         return nodes, edge_attr, globals
 
 

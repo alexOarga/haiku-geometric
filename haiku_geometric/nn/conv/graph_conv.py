@@ -56,11 +56,12 @@ class GraphConv(hk.Module):
         if edges is not None:
             messages = messages * edges
 
-        # total_num_nodes = tree.tree_leaves(nodes)[0].shape[0]
-        out = tree.tree_map(lambda x: self.aggr(messages, receivers,
-                                                num_segments=num_nodes), nodes)
+        if num_nodes is None:
+            num_nodes = tree.tree_leaves(nodes)[0].shape[0]
+        out = self.aggr(messages, receivers, num_nodes)
 
         out = self.linear(out)
-        out = out + self.linear_root(nodes)
+        aux = self.linear_root(nodes)
+        out = out + aux
 
         return out

@@ -153,17 +153,21 @@ class GPSLayer(hk.Module):
                  nodes: jnp.ndarray,
                  senders: jnp.ndarray = None,
                  receivers: jnp.ndarray = None,
-                 edges: Optional[jnp.ndarray] = None
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 edges: Optional[jnp.ndarray] = None,
+                 num_nodes: Optional[int] = None
+                 ) -> jnp.ndarray:
         """"""
         h = nodes
         h_in1 = h
 
         h_out_list = []
-        
+
+        if num_nodes is None:
+            num_nodes = tree.tree_leaves(h)[0].shape[0]
+
         # Local MPNN
         if self.local_model is not None:
-            h_local = self.local_model(h, senders, receivers, edges)
+            h_local = self.local_model(h, senders, receivers, edges, num_nodes=num_nodes)
             if training:
                 h_local = hk.dropout(jax.random.PRNGKey(42), self.dropout, h_local)
             else:

@@ -15,12 +15,12 @@ def test_gine_conv(train_eps, edge_dim):
     def forward(nodes, receivers, senders, edges, **args):
         nn = hk.nets.MLP((8, 8))
         module = GINEConv(nn, **args)
-        return module(nodes, receivers, senders, edges)
+        return module(nodes, senders, receivers, edges)
 
     # Test with edge features
     graph = ToyGraphDataset().data[0]
     nodes, edges, receivers, senders = graph.nodes, graph.edges, graph.receivers, graph.senders
     network = hk.without_apply_rng(hk.transform(forward))
-    params_n = network.init(jax.random.PRNGKey(42), nodes, receivers, senders, edges, **args)
-    out = network.apply(params_n, nodes, receivers, senders, edges, **args)
+    params_n = network.init(jax.random.PRNGKey(42), nodes, senders, receivers, edges, **args)
+    out = network.apply(params_n, nodes, senders, receivers, edges, **args)
     assert out.shape == (4, 8)

@@ -2,10 +2,10 @@ import warnings
 import haiku as hk
 import jraph
 import jax.numpy as jnp
+import jax.tree_util as tree
 
 from typing import Optional, Union
 from haiku_geometric.nn.aggr.utils import aggregation
-from haiku_geometric.nn.conv.utils import validate_input
 
 
 class GatedGraphConv(hk.Module):
@@ -51,18 +51,17 @@ class GatedGraphConv(hk.Module):
         self.rnn = hk.GRU(out_channels)
 
     def __call__(self,
-                 nodes: jnp.ndarray = None,
-                 senders: jnp.ndarray = None,
-                 receivers: jnp.ndarray = None,
+                 nodes: jnp.ndarray,
+                 senders: jnp.ndarray,
+                 receivers: jnp.ndarray,
                  edges: Optional[jnp.ndarray] = None,
-                 graph: Optional[jraph.GraphsTuple] = None
-                 ) -> Union[jnp.ndarray, jraph.GraphsTuple]:
+                 num_nodes: Optional[int] = None,
+                 ) -> jnp.ndarray:
         """"""
-        nodes, edges, receivers, senders = \
-            validate_input(nodes, senders, receivers, edges, graph)
 
         in_channels = nodes.shape[-1]
-        sum_n_node = nodes.shape[0]
+        if num_nodes is None:
+            num_nodes = tree.tree_leaves(nodes)[0].shape[0]
 
         if in_channels > self.out_channels:
             raise RuntimeError("Input features size of GatedGraphConv cannot be larger than "
@@ -81,13 +80,9 @@ class GatedGraphConv(hk.Module):
             messages = m[senders]
             if edges is not None and edges.shape[-1] == 1:
                 messages = messages * edges
-            m = self.aggr(messages, receivers, num_segments=sum_n_node)
+            m = self.aggr(messages, receivers, num_segments=num_nodes)
 
             x = self.rnn(m, x)
             x = x[0]
 
-        if graph is not None:
-            graph = graph._replace(nodes=x)
-            return graph
-        else:
-            return x
+        return x

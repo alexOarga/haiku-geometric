@@ -37,16 +37,16 @@ def test_pna_conv(aggrs, scaler):
         'edge_dim': 1,
     }
 
-    def forward(nodes, receivers, senders, edges, **kwargs):
+    def forward(nodes, senders, receivers, edges, **kwargs):
         module = PNAConv(**kwargs)
-        return module(nodes, receivers, senders, edges)
+        return module(nodes, senders, receivers, edges)
 
     graph = train_dataset[0]
     nodes, edges, receivers, senders = graph.nodes, graph.edges, graph.receivers, graph.senders
     network = hk.without_apply_rng(hk.transform(forward))
     params = network.init(jax.random.PRNGKey(42), 
-            nodes, receivers, senders, edges, **kwargs)
-    out = network.apply(params, nodes, receivers, senders, edges, **kwargs)
+            nodes, senders, receivers, edges, **kwargs)
+    out = network.apply(params, nodes, senders, receivers, edges, **kwargs)
     assert out.shape == (4, 8)
 
     # Test without edge features
@@ -54,6 +54,6 @@ def test_pna_conv(aggrs, scaler):
     kwargs['edge_dim'] = None
     network = hk.without_apply_rng(hk.transform(forward))
     params = network.init(jax.random.PRNGKey(42), 
-            nodes, receivers, senders, edges, **kwargs)
-    out = network.apply(params, nodes, receivers, senders, edges, **kwargs)
+            nodes, senders, receivers, edges, **kwargs)
+    out = network.apply(params, nodes, senders, receivers, edges, **kwargs)
     assert out.shape == (4, 8)
