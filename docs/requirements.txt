@@ -2,7 +2,7 @@ haiku-geometric
 git+https://github.com/alexOarga/haiku-geometric.git@main
 jax==0.3.16
 jaxlib==0.3.15
-dm_haiku-0.0.9
+dm_haiku==0.0.9
 sphinx==4.5.0
 sphinx-book-theme==0.3.3
 sphinxcontrib-katex==0.9.0
