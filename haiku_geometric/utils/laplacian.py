@@ -219,7 +219,7 @@ def eigv_laplacian(
     """
 
     L = get_laplacian_matrix(
-        senders, receivers, edge_weight, normalization,num_nodes)
+        senders, receivers, edge_weight, normalization, num_nodes)
     evals, evects = jnp.linalg.eigh(L)
 
     N = len(evals)

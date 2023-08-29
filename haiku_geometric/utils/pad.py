@@ -17,7 +17,6 @@ def pad_graph(data_graph, n_nodes, n_edges, batch=None):
             - A `jax.numpy.ndarray` with the new batch indexes.
             - A 'int' with the new number of batches (i.e. the old number of batches + 1).
         """
-
     num_nodes = int(jnp.sum(data_graph.n_node))
     num_edges = int(jnp.sum(data_graph.n_edge))
     pad_n_nodes = max(int(n_nodes - num_nodes), 0)
@@ -27,20 +26,20 @@ def pad_graph(data_graph, n_nodes, n_edges, batch=None):
         shape = list(data_graph.nodes.shape)
         shape[0] = pad_n_nodes
         new_nodes = jnp.zeros(shape, dtype=data_graph.nodes[0].dtype)
-        new_nodes = jnp.concatenate([new_nodes, data_graph.nodes], axis=0)
+        new_nodes = jnp.concatenate([data_graph.nodes, new_nodes], axis=0)
         data_graph = data_graph._replace(nodes=new_nodes)
 
     if pad_n_edges > 0:
         new_senders = jnp.zeros((pad_n_edges,), dtype=data_graph.senders[0].dtype)
         new_receivers = jnp.zeros((pad_n_edges,), dtype=data_graph.senders[0].dtype)
-        new_senders = jnp.concatenate([new_senders, data_graph.senders], axis=0)
-        new_receivers = jnp.concatenate([new_receivers, data_graph.receivers], axis=0)
+        new_senders = jnp.concatenate([data_graph.senders, new_senders], axis=0)
+        new_receivers = jnp.concatenate([data_graph.receivers, new_receivers], axis=0)
 
         if data_graph.edges is not None:
             shape = list(data_graph.edges.shape)
             shape[0] = pad_n_edges
             new_edges = jnp.zeros(shape, dtype=data_graph.nodes[0].dtype)
-            new_edges = jnp.concatenate([new_edges, data_graph.edges], axis=0)
+            new_edges = jnp.concatenate([data_graph.edges, new_edges], axis=0)
             data_graph = data_graph._replace(edges=new_edges)
         data_graph = data_graph._replace(senders=new_senders)
         data_graph = data_graph._replace(receivers=new_receivers)

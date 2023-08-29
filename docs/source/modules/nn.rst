@@ -32,7 +32,9 @@ Pooling Layers
 
 .. automodule:: haiku_geometric.nn.pool
    :members:
+   :special-members:
    :undoc-members:
+   :exclude-members: __abstractmethods__, __module__, __repr__
 
 Dense Layers
 ------------
