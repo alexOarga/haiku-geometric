@@ -1,6 +1,7 @@
 import jax.numpy as jnp
 import jax
 import haiku as hk
+from functools import partial
 from typing import Optional, Union
 from haiku_geometric.utils import scatter, batch_softmax
 
@@ -75,7 +76,7 @@ class TopKPooling(hk.Module):
             - The updated batch array.
 
         **Observations:**
-            To make this layer jit-able, it requires providing parameters :obj:`create_new_batch`, :obj:`batch_size` and :obj:`max_num_nodes`
+            To make this layer jit-able, it requires providing parameters :obj:`create_new_batch=True` and :obj:`batch_size`
             as static parameters.
         """
         num_nodes = x.shape[0]
@@ -87,22 +88,18 @@ class TopKPooling(hk.Module):
         score = batch_softmax(score, batch, batch_size)
 
         if create_new_batch:
-            return self._select_and_batch_topk(x, senders, receivers, edges, batch, score, batch_size, max_num_nodes)
+            return self._select_and_batch_topk(x, senders, receivers, edges, batch, score, batch_size)
         else:
             return self._select_topk(x, senders, receivers, edges, batch, score, num_nodes)
 
 
-    def _select_and_batch_topk(self, x, senders, receivers, edges, batch, score, batch_size, max_num_nodes):
-        new_batch = select_batch_topk(score, self.ratio, batch, batch_size, max_num_nodes)
+    def _select_and_batch_topk(self, x, senders, receivers, edges, batch, score, batch_size):
+        new_batch = select_batch_topk(score, self.ratio, batch, batch_size)
 
         x = x * score.reshape(-1, 1)
         x = self.multiplier * x if self.multiplier != 1 else x
 
         new_batch_idx = jnp.max(batch) + 1
-
-        new_perm = jnp.argsort(new_batch, axis=-1)
-        x = x[new_perm]
-        new_batch = new_batch[new_perm]
 
         # assign self loops to new batch nodes
         mask = (new_batch[senders] == new_batch_idx) | (new_batch[receivers] == new_batch_idx)
@@ -136,7 +133,35 @@ class TopKPooling(hk.Module):
         return x, senders, receivers, edge_attr, batch
 
 
-def select_batch_topk(score, ratio, batch, batch_size=None, max_num_nodes=None):
+@partial(jax.jit, static_argnums=(1))
+def _count_occurrences(arr, rrange):
+    '''
+    Given an array of positive integers, sequentially count the number of occurrences of
+    each integer (starting at 0).
+    For instance, given the array [0, 1, 1, 2, 2, 2, 0, 1, 1, 1], the output
+    would be [0, 0, 1, 0, 1, 2, 2, 2, 3, 4].
+    Given the array [1, 2, 3, 4, 5, 1, 1]
+    the output would be [0, 0, 0, 0, 0, 1, 2]
+
+    Parameters:
+        arr (jnp.ndarray): Array of positive integers.
+        rrange (int): Range of the integers in the array.
+            It will be iterated similar to the 'range(rrange)' function.
+    '''
+
+    counts = jnp.zeros_like(arr)
+
+    def body_fun(val, counts):
+        mask = (arr == val)
+        count = jnp.cumsum(mask)
+        counts = jnp.where(mask, count, counts)
+        return counts
+
+    counts = jax.lax.fori_loop(0, rrange, body_fun, counts)
+
+    return counts
+
+def select_batch_topk(score, ratio, batch, batch_size=None):
 
     if batch_size is None:
         batch_size = jnp.max(batch) + 1
@@ -145,21 +170,11 @@ def select_batch_topk(score, ratio, batch, batch_size=None, max_num_nodes=None):
         data=jnp.ones(score.shape[0], dtype=jnp.int32),
         segment_ids=batch, num_segments=batch_size)
 
-    if max_num_nodes is None:
-        max_num_nodes = jnp.max(nodes_per_batch)
-
-    cum_num_nodes = jnp.concatenate(
-        [jnp.zeros(1),
-         jnp.cumsum(nodes_per_batch, axis=0)[:-1]], axis=0, dtype=jnp.int32)
-
-    #max_num_nodes = jnp.max(nodes_per_batch)
-    index = jnp.arange((batch.shape[0]), dtype=jnp.uint32)
-
-    index = (index - cum_num_nodes[batch]) + (batch * max_num_nodes)
-    score_batch_matrix = jnp.full((batch_size * max_num_nodes), MIN_INF)
-    score_batch_matrix = score_batch_matrix.at[index].set(score, unique_indices=True)
-    score_batch_matrix = score_batch_matrix.reshape((batch_size, max_num_nodes))
-    perm = jnp.argsort(-score_batch_matrix, axis=-1)  # trick for descending order
+    perm = jnp.argsort(-score, axis=-1)  # trick for descending order
+    # Sort batch according to the score
+    # This arrays will be cropped later according to the ratio param.
+    batch = batch[perm]
+    occ = _count_occurrences(batch, batch_size) - 1
 
     if ratio >= 1:
         k = jnp.full((batch_size,), int(ratio))
@@ -167,10 +182,8 @@ def select_batch_topk(score, ratio, batch, batch_size=None, max_num_nodes=None):
     else:
         k = jnp.ceil(ratio * nodes_per_batch).astype(jnp.int32)
 
-    index_batch = jnp.arange(score.shape[0])
-    index_batch = index_batch - cum_num_nodes[batch]
     threshold_per_batch = k[batch] - 1
-    new_batch = jnp.where(index_batch <= threshold_per_batch, batch, jnp.full(batch.shape, batch_size))
+    new_batch = jnp.where(occ <= threshold_per_batch, batch, jnp.full(batch.shape, batch_size))
     batch_size += 1
     return new_batch
 
@@ -205,7 +218,6 @@ def topk_indexes(score, ratio, batch):
     perm = perm[index]
     perm = perm.reshape(-1)
     return perm
-
 
 
 

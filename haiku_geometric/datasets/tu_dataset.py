@@ -54,9 +54,9 @@ class TUDataset(GraphDataset):
               - 7
               - 4
               - 2
-    
+
     """
-    
+
     def __init__(
             self, name: str,
             root: str,
@@ -110,7 +110,8 @@ def read_tu_dataset(folder, dataset):
         if node_label.ndim == 1:
             node_label = node_label[:, None]
         node_label = node_label - jnp.min(node_label, axis=0)[0]
-        num_classes = jnp.max(node_label) + 1 # Also counts 0
+        # Note: num_classes is casted to int because one_hot requires static num_classes
+        num_classes = int(jnp.max(node_label) + 1)  # Also count 0
         node_label = [jax.nn.one_hot(x, num_classes) for x in node_label]
         if len(node_label) == 1:  # turn list into array
             node_label = node_label[0]
@@ -133,7 +134,7 @@ def read_tu_dataset(folder, dataset):
         if edge_label.ndim == 1:
             edge_label = edge_label[:, None]
         edge_label = edge_label - jnp.min(edge_label, axis=0)[0]
-        num_classes = jnp.max(edge_label) + 1
+        num_classes = int(jnp.max(edge_label) + 1)  # Also count 0
         edge_labels = [jax.nn.one_hot(x, num_classes) for x in edge_label]
         if len(edge_labels) == 1:  # turn list into array
             edge_label = edge_labels[0]
