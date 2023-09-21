@@ -94,7 +94,10 @@ class TopKPooling(hk.Module):
 
 
     def _select_and_batch_topk(self, x, senders, receivers, edges, batch, score, batch_size):
-        new_batch = select_batch_topk(score, self.ratio, batch, batch_size)
+        new_batch, perm = select_batch_topk(score, self.ratio, batch, batch_size)
+
+        x = x[perm]
+        score = score[perm]
 
         x = x * score.reshape(-1, 1)
         x = self.multiplier * x if self.multiplier != 1 else x
@@ -185,7 +188,7 @@ def select_batch_topk(score, ratio, batch, batch_size=None):
     threshold_per_batch = k[batch] - 1
     new_batch = jnp.where(occ <= threshold_per_batch, batch, jnp.full(batch.shape, batch_size))
     batch_size += 1
-    return new_batch
+    return new_batch, perm
 
 
 def topk_indexes(score, ratio, batch):
