@@ -93,6 +93,7 @@ The following examples are available:
 | Quickstart Example                                  | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=Quickstart&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/docs/source/notebooks/1_quickstart.ipynb) |
 | Graph Convolution Networks with Karate Club dataset | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GCNConv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GCNConv_karate_club.ipynb)          |
 | Graph Attention Networks with CORA dataset          | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=GATConv&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/GATConv_CORA.ipynb)                 |
+| TopKPooling and GraphConv with PROTEINS dataset     | [![Open in Colab](https://img.shields.io/static/v1.svg?logo=google-colab&label=TopKPooling&message=Open%20In%20Colab&color=blue)](https://colab.research.google.com/github/alexOarga/haiku-geometric/blob/main/examples/TopKPooling_GraphConv_PROTEINS.ipynb)                 |
 
 
 ## Implemented GNNs modules
