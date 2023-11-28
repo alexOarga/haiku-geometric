@@ -118,10 +118,8 @@ class GCNConv(hk.Module):
             if self.cached and hasattr(self, 'norm_vals'):
                 norm_vals = self.norm_vals
             else:
-                d = edges + jnp.ones_like(conv_senders).reshape(-1, 1)
-                d = d.reshape(-1)
                 count_edges = lambda x: segment_sum(
-                    d, x, num_nodes)
+                    edges.reshape(-1), x, num_nodes)
                 sender_degree = count_edges(conv_senders)
                 receiver_degree = count_edges(conv_receivers)
 
@@ -137,5 +135,8 @@ class GCNConv(hk.Module):
         messages = jnp.multiply(messages, jnp.squeeze(edges)).transpose()
         nodes = self.aggr(messages, conv_receivers,
                           num_nodes)
+                          
+        if self.bias is not None:
+            nodes = nodes + self.bias
 
         return nodes
